@@ -1,2 +1,2 @@
-# Big-Data-UAM
-Projects / homework / labs
+# BigData-UAM
+projects / homework / labs
