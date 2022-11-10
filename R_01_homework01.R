@@ -19,8 +19,3 @@ root <- function(x, est = 1, prec = 0.001){
   }
   return(new_est)
 }
-
-
-root(16)
-root(123429)
-root(root(16))
