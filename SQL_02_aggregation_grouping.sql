@@ -13,7 +13,7 @@ select top 5*
 from Products
 
 select	C.CategoryName,
-		sum(P.UnitPrice * P.UnitsInStock) as StockValue
+	sum(P.UnitPrice * P.UnitsInStock) as StockValue
 from Products as P
 join Categories as C on C.CategoryID = P.CategoryID
 group by C.CategoryName
@@ -25,7 +25,7 @@ order by C.CategoryName asc;
 Sort the result descending by product value. */
 
 select	C.CategoryName,
-		sum(P.UnitPrice * P.UnitsInStock) as StockValue
+	sum(P.UnitPrice * P.UnitsInStock) as StockValue
 from Products as P
 join Categories as C on C.CategoryID = P.CategoryID
 group by C.CategoryName
@@ -45,7 +45,7 @@ select top 5*
 from [Order Details]
 
 select	S.CompanyName,
-		count(distinct OD.OrderID) as NumberOfOrders
+	count(distinct OD.OrderID) as NumberOfOrders
 from Suppliers as S
 join Products as P on P.SupplierID = S.SupplierID
 join [Order Details] as OD on OD.ProductID = P.ProductID
@@ -59,9 +59,9 @@ order value calculated based on its value, i.e. the sum of the products of unit 
 
 --!!!WRONG SOLUTION!!!
 select O.CustomerID, 
-		avg(OD.UnitPrice * OD.Quantity) AverageOrder,
-		min(OD.UnitPrice * OD.Quantity) MinOrder,
-		max(OD.UnitPrice * OD.Quantity) MaxOrder
+	avg(OD.UnitPrice * OD.Quantity) AverageOrder,
+	min(OD.UnitPrice * OD.Quantity) MinOrder,
+	max(OD.UnitPrice * OD.Quantity) MaxOrder
 from [Order Details] as OD
 join Orders as O on O.OrderID = OD.OrderID
 group by O.CustomerID
@@ -71,16 +71,16 @@ order by avg(OD.UnitPrice * OD.Quantity);
 with OrderSumPerID (OrderID, OrderSum) as
 	(
 	select	OD.OrderID,
-			sum(OD.UnitPrice * OD.Quantity) as OrderSum
+		sum(OD.UnitPrice * OD.Quantity) as OrderSum
 	from [Order Details] OD
 	join Orders O on O.OrderID = OD.OrderID
 	group by OD.OrderID
 	)
 
 select	O.CustomerID,
-		avg(OrderSum) as AverageOrder,
-		min(OrderSum) as MinOrder,
-		max(OrderSum) as MaxOrder
+	avg(OrderSum) as AverageOrder,
+	min(OrderSum) as MinOrder,
+	max(OrderSum) as MaxOrder
 from OrderSumPerID as OSPI
 join Orders as O on O.OrderID = OSPI.OrderID
 group by O.CustomerID
@@ -93,7 +93,7 @@ select *
 from Orders
 
 select	cast(OrderDate as date) as OrderDate,
-		count(distinct OrderID) as CNT
+	count(distinct OrderID) as CNT
 from Orders
 group by OrderDate
 having count(distinct OrderID) > 1
@@ -104,13 +104,13 @@ order by CNT desc;
 Sort the result by "Year-Month" (descending). */
 
 select	datepart(year, OrderDate) 'Year',
-		datepart(mm, OrderDate) 'Month'
+	datepart(mm, OrderDate) 'Month'
 from Orders
 
 --07A:
 select	format(OrderDate, 'yyyy') 'Year',
-		format(OrderDate, 'yyyy-MM') 'Year-Month',
-		count(distinct OrderID) CNT
+	format(OrderDate, 'yyyy-MM') 'Year-Month',
+	count(distinct OrderID) CNT
 from Orders
 group by rollup	(format(OrderDate, 'yyyy'),
 				format(OrderDate, 'yyyy-MM'))
@@ -118,8 +118,8 @@ order by 'Year-Month' desc, 'Year' desc;
 
 --07B (less clear to read data imho)
 select	datepart(year, OrderDate) as 'Year',
-		datepart(mm, OrderDate) as 'Month',
-		count(distinct OrderID) as CNT
+	datepart(mm, OrderDate) as 'Month',
+	count(distinct OrderID) as CNT
 from Orders
 group by rollup (datepart(year, OrderDate),
 				datepart(mm, OrderDate))
@@ -147,7 +147,8 @@ select	ShipCountry,
 		case 
 			when grouping (ShipRegion) = 0 and ShipRegion is null then 'Not provided'
 			else ShipRegion
-		end ShipRegion,
+		end as ShipRegion,
+		
 		ShipCity,
 		count(1) as CNT,
 		
@@ -171,8 +172,8 @@ Include only records that have all the required information (no external joins n
 Sort the result by customer name (alphabetically). */
 
 select	format(O.OrderDate, 'yyyy') as 'Year',
-		C.CompanyName,
-		sum(OD.Quantity * OD.UnitPrice) as OrdersValue
+	C.CompanyName,
+	sum(OD.Quantity * OD.UnitPrice) as OrdersValue
 from Orders O 
 join Customers C on C.CustomerID = O.CustomerID
 join [Order Details] OD on OD.OrderID = O.OrderID
@@ -188,9 +189,9 @@ of the customer (the dimension should consist of two: country and region; summar
 for country and region). Sort the results by country name (alphabetically).*/
 
 select	format(O.OrderDate, 'yyyy') as 'Year',
-		C.Country as Country,
-		C.Region as Region,
-		sum(OD.Quantity * OD.UnitPrice) as OrdersValue
+	C.Country as Country,
+	C.Region as Region,
+	sum(OD.Quantity * OD.UnitPrice) as OrdersValue
 from Orders O 
 join Customers C on C.CustomerID = O.CustomerID
 join [Order Details] OD on OD.OrderID = O.OrderID
@@ -248,8 +249,8 @@ select * from Shippers
 
 --Query to produce the data
 select	O.ShipCountry as Country,
-		S.CompanyName as Company,
-		count(distinct O.OrderID) CNT
+	S.CompanyName as Company,
+	count(distinct O.OrderID) CNT
 from Orders O
 join Shippers S on S.ShipperID = O.ShipVia
 group by O.ShipCountry, S.CompanyName
@@ -258,8 +259,8 @@ group by O.ShipCountry, S.CompanyName
 select	[Country], [Speedy Express], [United Package], [Federal Shipping]
 from
 	(select	O.ShipCountry as Country,
-			S.CompanyName as Company,
-			count(distinct O.OrderID) CNT
+		S.CompanyName as Company,
+		count(distinct O.OrderID) CNT
 	from Orders O
 	join Shippers S on S.ShipperID = O.ShipVia
 	group by O.ShipCountry, S.CompanyName
@@ -277,8 +278,8 @@ freight forwarded to your country.*/
 
 --Query to produce the data
 select	O.ShipCountry as Country,
-		S.CompanyName as Company,
-		sum(OD.Quantity * OD.UnitPrice) Total
+	S.CompanyName as Company,
+	sum(OD.Quantity * OD.UnitPrice) Total
 from Orders O
 join Shippers S on S.ShipperID = O.ShipVia
 join [Order Details] OD on OD.OrderID = O.OrderID
