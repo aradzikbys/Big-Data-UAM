@@ -5,7 +5,7 @@
 (Categories.CategoryName) to which the product belongs. Sort the result by product name (ascending). */
 
 SELECT	P.ProductName,
-		C.CategoryName
+	C.CategoryName
 FROM Products AS P
 JOIN Categories AS C ON C.CategoryID = P.CategoryID
 ORDER BY P.ProductName ASC;
@@ -15,8 +15,8 @@ ORDER BY P.ProductName ASC;
 name the column SupplierName. Sort the result descending by the unit price of the product. */
 
 SELECT	P.ProductName,
-		C.CategoryName,
-		S.CompanyName AS SupplierName
+	C.CategoryName,
+	S.CompanyName AS SupplierName
 FROM Products P
 JOIN Categories C ON C.CategoryID = P.CategoryID
 JOIN Suppliers S ON S.SupplierID = P.SupplierID
@@ -29,14 +29,14 @@ Sort the result by product name (ascending). */
 WITH MaxPriceInCat (MaxPrice, CategoryID) AS
 	(
 	SELECT	MAX(P.UnitPrice) AS MaxPrice,
-			C.CategoryID 
+		C.CategoryID 
 	FROM Products AS P
 	JOIN Categories AS C ON C.CategoryID = P.CategoryID
 	GROUP BY C.CategoryID
 	)
 
 SELECT	P.ProductName,
-		P.UnitPrice
+	P.UnitPrice
 FROM Products AS P
 JOIN MaxPriceInCat AS MPIC ON MPIC.MaxPrice = P.UnitPrice
 WHERE P.CategoryID = MPIC.CategoryID
@@ -44,12 +44,12 @@ ORDER BY ProductName;
 
 -- w/o CTE:
 SELECT	P1.ProductName,
-		P1.UnitPrice AS MaxPriceInCat
+	P1.UnitPrice AS MaxPriceInCat
 FROM Products P1
 WHERE UnitPrice =
-			(SELECT MAX(UnitPrice)
-			FROM Products P2
-			WHERE P1.CategoryID = P2.CategoryID)
+		(SELECT MAX(UnitPrice)
+		FROM Products P2
+		WHERE P1.CategoryID = P2.CategoryID)
 ORDER BY P1.ProductName;
 
 -- EX04
@@ -58,31 +58,31 @@ calculated for other categories (other than the one to which the product belongs
 
 -- AVG price per Category:
 SELECT	CategoryID,
-		AVG(UnitPrice) AS AveragePrice
+	AVG(UnitPrice) AS AveragePrice
 FROM Products
 GROUP BY CategoryID;
 
 -- 04A:
 SELECT	P1.ProductName,
-		P1.UnitPrice,
-		P1.CategoryID
+	P1.UnitPrice,
+	P1.CategoryID
 FROM Products AS P1 
 WHERE UnitPrice > ALL(SELECT AVG(P2.UnitPrice)
-				   FROM Products AS P2
-				   JOIN Categories AS C2 ON P2.CategoryID = C2.CategoryID
-				   WHERE P1.CategoryID != P2.CategoryID
-				   GROUP BY CategoryName)
+			FROM Products AS P2
+			JOIN Categories AS C2 ON P2.CategoryID = C2.CategoryID
+			WHERE P1.CategoryID != P2.CategoryID
+			GROUP BY CategoryName)
 ORDER BY P1.UnitPrice DESC;
 
 -- 04BB:
 SELECT	P1.ProductName,
-		P1.UnitPrice,
-		P1.CategoryID
+	P1.UnitPrice,
+	P1.CategoryID
 FROM Products P1
 WHERE UnitPrice > ALL(SELECT avg(P2.UnitPrice)
-					FROM Products P2
-					WHERE P1.CategoryID != P2.CategoryID
-					GROUP BY P2.CategoryID) 
+			FROM Products P2
+			WHERE P1.CategoryID != P2.CategoryID
+			GROUP BY P2.CategoryID) 
 ORDER BY P1.UnitPrice DESC;
 
 
@@ -93,21 +93,21 @@ ORDER BY P1.UnitPrice DESC;
 with MaxPriceInOrder (ProductID, MaxQuantity) AS
 	(
 	SELECT	ProductID,
-			MAX(quantity) AS MaxQuantity
+		MAX(quantity) AS MaxQuantity
 	FROM [Order Details]
 	GROUP BY ProductID
 	)
 
 SELECT	P1.ProductName,
-		P1.UnitPrice,
-		P1.CategoryID,
-		MPIO.MaxQuantity
+	P1.UnitPrice,
+	P1.CategoryID,
+	MPIO.MaxQuantity
 FROM Products P1
 JOIN MaxPriceInOrder AS MPIO ON MPIO.ProductID = P1.ProductID
 WHERE UnitPrice > ALL(SELECT avg(P2.UnitPrice)
-					FROM Products P2
-					WHERE P1.CategoryID != P2.CategoryID
-					GROUP BY P2.CategoryID) 
+			FROM Products P2
+			WHERE P1.CategoryID != P2.CategoryID
+			GROUP BY P2.CategoryID) 
 ORDER BY P1.ProductName DESC;
 
 -- EX06
@@ -116,7 +116,7 @@ in a given category ([Order Details].UnitPrice * [OrderDetails].Quantity) withou
 only those categories for which the above the sum is greater than 200,000. Sort result by sum of order values ​​(descending)*/
 
 SELECT	P.CategoryID,
-		SUM(OD.UnitPrice * OD.Quantity) AS TotalQuantity
+	SUM(OD.UnitPrice * OD.Quantity) AS TotalQuantity
 FROM [Order Details] AS OD
 JOIN Products AS P ON P.ProductID = OD.ProductID
 GROUP BY P.CategoryID
@@ -127,8 +127,8 @@ HAVING SUM(OD.UnitPrice * OD.Quantity) > 200000
 
 -- 07A:
 SELECT	P.CategoryID,
-		C.CategoryName,
-		SUM(OD.UnitPrice * OD.Quantity) AS TotalQuantity
+	C.CategoryName,
+	SUM(OD.UnitPrice * OD.Quantity) AS TotalQuantity
 FROM [Order Details] AS OD
 JOIN Products AS P ON P.ProductID = OD.ProductID
 JOIN Categories AS C ON C.CategoryID = P.CategoryID
@@ -139,7 +139,7 @@ HAVING SUM(OD.UnitPrice * OD.Quantity) > 200000
 with TotalQuantityPerCategory (CategoryID, TotalQuantity) AS
 	(
 	SELECT	P.CategoryID,
-			SUM(OD.UnitPrice * OD.Quantity) AS TotalQuantity
+		SUM(OD.UnitPrice * OD.Quantity) AS TotalQuantity
 	FROM [Order Details] AS OD
 	JOIN Products AS P ON P.ProductID = OD.ProductID
 	GROUP BY P.CategoryID
@@ -147,8 +147,8 @@ with TotalQuantityPerCategory (CategoryID, TotalQuantity) AS
 	)
 
 SELECT	C.CategoryID,
-		CategoryName,
-		TQPC.TotalQuantity
+	CategoryName,
+	TQPC.TotalQuantity
 FROM Categories AS C
 JOIN TotalQuantityPerCategory AS TQPC
 ON C.CategoryID = TQPC.CategoryID
@@ -173,19 +173,19 @@ WHERE (LAStName = 'King' and FirstName = 'Robert')
 SELECT COUNT(*) AS CNT
 FROM Orders
 WHERE ShipRegion NOT IN (SELECT DISTINCT ISNULL(O.ShipRegion,'no region') AS ShipReg
-						FROM Orders AS O
-						JOIN Employees AS E ON E.EmployeeID = O.EmployeeID
-						WHERE (LAStName = 'King' and FirstName = 'Robert'))
-				OR ShipRegion IS NULL;
+			FROM Orders AS O
+			JOIN Employees AS E ON E.EmployeeID = O.EmployeeID
+			WHERE (LAStName = 'King' and FirstName = 'Robert'))
+			OR ShipRegion IS NULL;
 
 -- 08B:
 SELECT COUNT(*) AS CNT
 FROM Orders O
 WHERE NOT EXISTS (SELECT 1 
-				FROM Orders P
-				JOIN Employees E ON P.EmployeeID = E.EmployeeID
-				WHERE P.ShipRegion = O.ShipRegion
-				AND E.FirstName = 'Robert' AND E.LAStName = 'King')
+		FROM Orders P
+		JOIN Employees E ON P.EmployeeID = E.EmployeeID
+		WHERE P.ShipRegion = O.ShipRegion
+		AND E.FirstName = 'Robert' AND E.LAStName = 'King')
 
 
 -- EX09
@@ -195,9 +195,9 @@ records (orders) that have a filled value in the ShipRegion field as well as rec
 SELECT DISTINCT ShipCountry
 FROM Orders
 WHERE ShipCountry IN (SELECT ShipCountry
-						FROM Orders 
-						WHERE ShipRegion IS NULL)
-				AND ShipRegion IS NOT NULL
+			FROM Orders 
+			WHERE ShipRegion IS NULL)
+			AND ShipRegion IS NOT NULL
 
 -- 09B (FROM labs):
 SELECT ShipCountry
@@ -221,15 +221,15 @@ is located also matches, with the city to which the product was shipped - name t
 Sort the result so that the alphabetically sorted products for which there is a full match are displayed first */
 
 SELECT DISTINCT P.ProductID,
-				P.ProductName,
-				S.Country SupplierCountry,
-				S.City SupplierCity,
-				O.ShipCountry,
-				O.ShipCity,
+		P.ProductName,
+		S.Country SupplierCountry,
+		S.City SupplierCity,
+		O.ShipCountry,
+		O.ShipCity,
 				
-		CASE WHEN O.ShipCity = S.City THEN 'Y'
+		CASE 	WHEN O.ShipCity = S.City THEN 'Y'
 			ELSE 'N'
-			END AS FullMatch
+		END AS FullMatch
 
 FROM Products AS P
 JOIN Suppliers AS S ON S.SupplierID = P.SupplierID
@@ -246,18 +246,18 @@ ORDER BY FullMatch DESC, P.ProductName ASC;
 Add also the fields containing the region to the result: Suppliers.Region (name them SupplierRegion) and Orders.ShipRegion) */
 
 SELECT DISTINCT P.ProductID,
-				P.ProductName,
-				S.Country SupplierCountry,
-				S.City SupplierCity,
-				S.Region SupplierRegion,
-				O.ShipCountry,
-				O.ShipCity,
-				O.ShipRegion,
+		P.ProductName,
+		S.Country SupplierCountry,
+		S.City SupplierCity,
+		S.Region SupplierRegion,
+		O.ShipCountry,
+		O.ShipCity,
+		O.ShipRegion,
 		
-		CASE WHEN O.ShipCity = S.City and ISNULL(S.Region,0) = ISNULL(O.ShipRegion,0) THEN 'Y'
+		CASE 	WHEN O.ShipCity = S.City and ISNULL(S.Region,0) = ISNULL(O.ShipRegion,0) THEN 'Y'
 			WHEN O.ShipCity = S.City and ISNULL(S.Region,0) != ISNULL(O.ShipRegion,0) THEN 'N (the region doesn''t match)'
 			ELSE 'N'
-			END AS FullMatch
+		END AS FullMatch
 
 FROM Products AS P
 JOIN Suppliers AS S ON S.SupplierID = P.SupplierID
@@ -272,9 +272,9 @@ The query should return either Yes or No in the DuplicatedProductsFlag column.*/
 
 SELECT DISTINCT
 
-CASE WHEN (SELECT DISTINCT COUNT(*) FROM Products) = (SELECT COUNT(*) FROM Products) THEN 'No'
+CASE 	WHEN (SELECT DISTINCT COUNT(*) FROM Products) = (SELECT COUNT(*) FROM Products) THEN 'No'
 	ELSE 'Yes'
-	END AS DuplicatedProductsFlag 
+END AS DuplicatedProductsFlag 
 
 FROM Products
 
@@ -283,7 +283,7 @@ FROM Products
 the given products appeared on. Sort the result so that the products that appear on orders most often appear first. */
 
 SELECT	P.ProductName,
-		COUNT(OD.OrderID) AS NumberOfOrders
+	COUNT(OD.OrderID) AS NumberOfOrders
 FROM Products AS P
 JOIN [Order Details] AS OD ON OD.ProductID = P.ProductID
 GROUP BY P.ProductName
@@ -295,13 +295,13 @@ ORDER BY NumberOfOrders DESC;
 -- appearing on orders in the context of a given year, i.e. we are first interested in the year: 1996, THEN 1997, etc. */
 
 SELECT	P.ProductName,
-		YEAR(O.OrderDate) AS OrderYear,
-		COUNT(OD.OrderID) AS NumberOfOrders
+	YEAR(O.OrderDate) AS OrderYear,
+	COUNT(OD.OrderID) AS NumberOfOrders
 FROM Products AS P
 JOIN [Order Details] AS OD ON OD.ProductID = P.ProductID
 JOIN Orders AS O ON O.OrderID = OD.OrderID
 GROUP BY P.ProductName,
-		YEAR(O.OrderDate)
+	YEAR(O.OrderDate)
 ORDER BY OrderYear ASC, NumberOfOrders DESC;
 
 -- EX15
@@ -309,15 +309,15 @@ ORDER BY OrderYear ASC, NumberOfOrders DESC;
 of a given product (Suppliers.CompanyName) - name the column SupplierName. */ 
 
 SELECT	P.ProductName,
-		S.CompanyName AS SupplierName,
-		YEAR(O.OrderDate) AS OrderYear,
-		COUNT(OD.OrderID) AS NumberOfOrders
+	S.CompanyName AS SupplierName,
+	YEAR(O.OrderDate) AS OrderYear,
+	COUNT(OD.OrderID) AS NumberOfOrders
 FROM Products AS P
 JOIN [Order Details] AS OD ON OD.ProductID = P.ProductID
 JOIN Orders AS O ON O.OrderID = OD.OrderID
 JOIN Suppliers AS S ON S.SupplierID = P.SupplierID
 GROUP BY P.ProductName,
-		S.CompanyName,
-		YEAR(O.OrderDate)
+	S.CompanyName,
+	YEAR(O.OrderDate)
 ORDER BY OrderYear ASC, NumberOfOrders DESC;
 
