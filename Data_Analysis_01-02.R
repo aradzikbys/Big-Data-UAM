@@ -9,7 +9,8 @@
 # two-room apartment according to the estimated model?
 # Are the assumptions of the model fulfilled?
 
-price <- c(300, 250, 400, 550, 317, 389, 425, 289, 389, 559) # Data vectors
+# Data vectors
+price <- c(300, 250, 400, 550, 317, 389, 425, 289, 389, 559) 
 rooms <- c(3, 3, 4, 5, 4, 3, 6, 3, 4, 5)
 
 dataset.02 <- data.frame(price,rooms) # Combine vectors to data frame
