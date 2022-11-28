@@ -5,14 +5,16 @@
 
 -- Average product price: 28.8663
 SELECT AVG(UnitPrice)
-FROM Products
+FROM Products;
 
 -- no CTE
-SELECT P.ProductName, C.CategoryName, P.UnitPrice
+SELECT	P.ProductName,
+	C.CategoryName,
+	P.UnitPrice
 FROM Products P
 JOIN Categories C ON C.CategoryID = P.CategoryID
 WHERE UnitPrice > (SELECT AVG(UnitPrice)
-					FROM Products)
+		FROM Products)
 ORDER BY P.UnitPrice;
 
 -- With CTE
@@ -24,10 +26,12 @@ WITH ProdAvgUnitPrice (AvgUnitPrice) AS
 
 	GreaterThanAvg (ProductName, CategoryID, UnitPrice) AS
 	(
-	SELECT ProductName, CategoryID, UnitPrice
+	SELECT	ProductName,
+		CategoryID,
+		UnitPrice
 	FROM Products P
 	WHERE UnitPrice > (SELECT AvgUnitPrice
-						FROM ProdAvgUnitPrice)
+			FROM ProdAvgUnitPrice)
 	)
 
 SELECT G.ProductName, C.CategoryName, G.UnitPrice
@@ -41,22 +45,26 @@ ORDER BY P.UnitPrice;
 Sort the result by unit price (UnitPrice). Execute the query in two variants: without and with CTE */
 
 -- w/o CTE
-SELECT P1.ProductID, P1.ProductName
+SELECT	P1.ProductID,
+	P1.ProductName
 FROM Products AS P1
 WHERE P1.UnitPrice > (SELECT AVG(P2.UnitPrice)
-					FROM Products P2
-					WHERE P1.CategoryID = P2.CategoryID)
+			FROM Products P2
+			WHERE P1.CategoryID = P2.CategoryID)
 ORDER BY P1.UnitPrice;
 
 -- With CTE
-WITH AvgPricePerCat AS
-	(SELECT C.CategoryID,
-			AVG(P2.UnitPrice) AS AVG
+WITH AvgPricePerCat (AVG) AS
+	(
+	SELECT C.CategoryID,
+		AVG(P2.UnitPrice) AS AVG
 	FROM Products AS P2
 	JOIN Categories AS C ON C.CategoryID = P2.CategoryID
-	GROUP BY C.CategoryID)
+	GROUP BY C.CategoryID
+	)
 
-SELECT P1.ProductID, P1.ProductName
+SELECT 	P1.ProductID,
+	P1.ProductName
 FROM Products AS P1
 JOIN AvgPricePerCat APPC ON APPC.CategoryID = P1.CategoryID
 WHERE P1.UnitPrice > APPC.AVG
@@ -69,15 +77,15 @@ whose maximum value of orders (UnitPrice*Quantity) is less than the average in t
 Sort the result in ascending order by product ID. */
 
 --Order Value Per Category 
-SELECT P.CategoryID,
-		SUM(OD.UnitPrice * OD.Quantity) Value
+SELECT	P.CategoryID,
+	SUM(OD.UnitPrice * OD.Quantity) Value
 FROM [Order Details] OD
 JOIN Products P ON P.ProductID = OD.ProductID
 GROUP BY OD.OrderID, P.CategoryID;
 
 --Order Value Per Product 
-SELECT P.ProductID,
-		SUM(OD.UnitPrice * OD.Quantity) Value
+SELECT	P.ProductID,
+	SUM(OD.UnitPrice * OD.Quantity) Value
 FROM [Order Details] OD
 JOIN Products P ON P.ProductID = OD.ProductID
 GROUP BY OD.OrderID, P.ProductID
@@ -87,16 +95,16 @@ ORDER BY P.ProductID;
 WITH OrderValuePerProd (ProductID, ProdOrderValue) AS
 	(
 	SELECT	P.ProductID,
-			SUM(OD.UnitPrice * OD.Quantity) ProdOrderValue
+		SUM(OD.UnitPrice * OD.Quantity) ProdOrderValue
 	FROM [Order Details] OD
 	JOIN Products P ON P.ProductID = OD.ProductID
 	GROUP BY OD.OrderID, P.ProductID
 	)
 	
 	SELECT	P.CategoryID,
-			P.ProductID,
-			P.ProductName,
-			ROUND(MAX(OVPP.ProdOrderValue),2) AS MaxOrderValue
+		P.ProductID,
+		P.ProductName,
+		ROUND(MAX(OVPP.ProdOrderValue),2) AS MaxOrderValue
 	FROM Products P
 	JOIN OrderValuePerProd OVPP ON OVPP.ProductID = P.ProductID
 	GROUP BY P.CategoryID, P.ProductID, P.ProductName
@@ -106,14 +114,14 @@ WITH OrderValuePerProd (ProductID, ProdOrderValue) AS
 WITH OrderValuePerCat (CategoryID, CatOrderValue) AS
 	(
 	SELECT	P.CategoryID,
-			SUM(OD.UnitPrice * OD.Quantity) AS CatOrderValue
+		SUM(OD.UnitPrice * OD.Quantity) AS CatOrderValue
 	FROM [Order Details] OD
 	JOIN Products P ON P.ProductID = OD.ProductID
 	GROUP BY OD.OrderID, P.CategoryID
 	)
 	
 	SELECT	P.CategoryID,
-			ROUND(AVG(OVPC.CatOrderValue),2) AS AvgOrderValue
+		ROUND(AVG(OVPC.CatOrderValue),2) AS AvgOrderValue
 	FROM Products P
 	JOIN OrderValuePerCat OVPC ON OVPC.CategoryID = P.CategoryID
 	GROUP BY P.CategoryID
@@ -123,7 +131,7 @@ WITH OrderValuePerCat (CategoryID, CatOrderValue) AS
 WITH OrderValuePerProd (ProductID, ProdOrderValue) AS
 	(
 	SELECT	P.ProductID,
-			SUM(OD.UnitPrice * OD.Quantity) AS ProdOrderValue
+		SUM(OD.UnitPrice * OD.Quantity) AS ProdOrderValue
 	FROM [Order Details] OD
 	JOIN Products P ON P.ProductID = OD.ProductID
 	GROUP BY OD.OrderID, P.ProductID
@@ -132,7 +140,7 @@ WITH OrderValuePerProd (ProductID, ProdOrderValue) AS
 	OrderValuePerCat (CategoryID, CatOrderValue) AS
 	(
 	SELECT	P.CategoryID,
-			SUM(OD.UnitPrice * OD.Quantity) AS CatOrderValue
+		SUM(OD.UnitPrice * OD.Quantity) AS CatOrderValue
 	FROM [Order Details] OD
 	JOIN Products P ON P.ProductID = OD.ProductID
 	GROUP BY OD.OrderID, P.CategoryID
@@ -141,7 +149,7 @@ WITH OrderValuePerProd (ProductID, ProdOrderValue) AS
 	AverageOrderValuePerCat (CategoryID, AvgOrderValue) AS
 	(
 	SELECT	P.CategoryID,
-			ROUND(AVG(OVPC.CatOrderValue),2) AS AvgOrderValue
+		ROUND(AVG(OVPC.CatOrderValue),2) AS AvgOrderValue
 	FROM Products P
 	JOIN OrderValuePerCat OVPC ON OVPC.CategoryID = P.CategoryID
 	GROUP BY P.CategoryID
@@ -150,19 +158,19 @@ WITH OrderValuePerProd (ProductID, ProdOrderValue) AS
 	MaxOrderValuePerProduct (CategoryID, ProductID, ProductName, MaxOrderValue) AS
 	(
 	SELECT	P.CategoryID,
-			P.ProductID,
-			P.ProductName,
-			MAX(OVPP.ProdOrderValue) AS MaxOrderValue
+		P.ProductID,
+		P.ProductName,
+		MAX(OVPP.ProdOrderValue) AS MaxOrderValue
 	FROM Products P
 	JOIN OrderValuePerProd OVPP ON OVPP.ProductID = P.ProductID
 	GROUP BY P.CategoryID, P.ProductID, P.ProductName
 	)
 	
 SELECT	MOVPP.CategoryID,
-		MOVPP.ProductID,
-		MOVPP.ProductName,
-		MOVPP.MaxOrderValue,
-		AOVPC.AvgOrderValue
+	MOVPP.ProductID,
+	MOVPP.ProductName,
+	MOVPP.MaxOrderValue,
+	AOVPC.AvgOrderValue
 FROM MaxOrderValuePerProduct MOVPP
 JOIN AverageOrderValuePerCat AOVPC ON AOVPC.CategoryID = MOVPP.CategoryID
 WHERE MOVPP.MaxOrderValue < AOVPC.AvgOrderValue
@@ -173,50 +181,46 @@ ORDER BY MOVPP.ProductID
 /*Using the Employees table, display the ID, name and surname of the employee together with an identifier, name and surname of his supervisor.
 To find a given supervisor use the ReportsTo field. Display results for hierarchy level no greater than 1 (starting from 0).
 Add the WhoIsThis column to the result, which will take the appropriate values for of a given level:
-	- Level = 0 – Krzysiu Jarzyna ze Szczecina
+	- Level = 0 â€“ Krzysiu Jarzyna ze Szczecina
 	- Level = 1 - Mr. Frog*/
 
 
-WITH EmployeesCTE
-	(
-	EmployeeID, FirstName, LastName, ReportsTo, ManagerFirstName, ManagerLastName, Level
-	)
-	AS
+WITH EmployeesCTE (EmployeeID, FirstName, LastName, ReportsTo, ManagerFirstName, ManagerLastName, Level) AS
 	(
 	SELECT	EmployeeID,
-			FirstName,
-			LastName,
-			ReportsTo,
-			CAST(null AS nvarchar(10)) AS ManagerFirstName, 
-			CAST(null AS nvarchar(20)) AS ManagerLastName,
-			0 AS Level
+		FirstName,
+		LastName,
+		ReportsTo,
+		CAST(null AS nvarchar(10)) AS ManagerFirstName, 
+		CAST(null AS nvarchar(20)) AS ManagerLastName,
+		0 AS Level
 	FROM Employees
 	WHERE ReportsTo is null
 	
-	UNION all 
+	UNION ALL 
 	
-		SELECT
-			E.EmployeeID,
-			E.FirstName,
-			E.LastName,
-			R.EmployeeID,
-			R.FirstName,
-			R.LastName,
-			Level + 1
+	SELECT	E.EmployeeID,
+		E.FirstName,
+		E.LastName,
+		R.EmployeeID,
+		R.FirstName,
+		R.LastName,
+		Level + 1
 	FROM Employees E
 	JOIN EmployeesCTE R ON E.ReportsTo = R.EmployeeID
 	WHERE Level < 1
 	)
+	
 SELECT	EmployeeID,
-		FirstName,
-		LastName,
-		ReportsTo,
-		ManagerFirstName, 
-		ManagerLastName,
-		CASE Level
-			WHEN 0 THEN 'Krzysiu Jarzyna ze Szczecina'
-			WHEN 1 THEN 'Mr. Frog'
-		END AS Level
+	FirstName,
+	LastName,
+	ReportsTo,
+	ManagerFirstName, 
+	ManagerLastName,
+	CASE Level
+		WHEN 0 THEN 'Krzysiu Jarzyna ze Szczecina'
+		WHEN 1 THEN 'Mr. Frog'
+	END AS Level
 FROM EmployeesCTE;
 
 
@@ -228,39 +232,38 @@ take the value "Rezyser Kina Akcji". */
 WITH EmployeesCTE (EmployeeID, FirstName, LastName, ReportsTo, ManagerFirstName, ManagerLastName, Level) AS
 	(
 	SELECT	EmployeeID,
-			FirstName,
-			LastName,
-			ReportsTo,
-			CAST(null AS nvarchar(10)) AS ManagerFirstName, 
-			CAST(null AS nvarchar(20)) AS ManagerLastName,
-			0 AS Level
+		FirstName,
+		LastName,
+		ReportsTo,
+		CAST(null AS nvarchar(10)) AS ManagerFirstName, 
+		CAST(null AS nvarchar(20)) AS ManagerLastName,
+		0 AS Level
 	FROM Employees
 	WHERE ReportsTo is null
 	
-	UNION all 
+	UNION ALL
 	
-		SELECT
-			E.EmployeeID,
-			E.FirstName,
-			E.LastName,
-			R.EmployeeID,
-			R.FirstName,
-			R.LastName,
-			Level + 1
+	SELECT	E.EmployeeID,
+		E.FirstName,
+		E.LastName,
+		R.EmployeeID,
+		R.FirstName,
+		R.LastName,
+		Level + 1
 	FROM Employees E
 	JOIN EmployeesCTE R ON E.ReportsTo = R.EmployeeID
 	)
 SELECT	EmployeeID,
-		FirstName,
-		LastName,
-		ReportsTo,
-		ManagerFirstName, 
-		ManagerLastName,
-		CASE Level
-			WHEN 0 THEN 'Krzysiu Jarzyna ze Szczecina'
-			WHEN 1 THEN 'Mr. Frog'
-			WHEN 2 THEN 'Rezyser Kina Akcji'
-		END AS Level
+	FirstName,
+	LastName,
+	ReportsTo,
+	ManagerFirstName, 
+	ManagerLastName,
+	CASE Level
+		WHEN 0 THEN 'Krzysiu Jarzyna ze Szczecina'
+		WHEN 1 THEN 'Mr. Frog'
+		WHEN 2 THEN 'Rezyser Kina Akcji'
+	END AS Level
 FROM EmployeesCTE;
 
 
@@ -271,14 +274,14 @@ Using CTEs and recursions, build a query to represent the Fibonacci sequence.*/
 WITH fib (N, FibValue, NextValue) AS
 	(
 	SELECT	0 AS N,
-			0 AS FibValue,
-			1 AS NextValue
+		0 AS FibValue,
+		1 AS NextValue
 	
-	UNION all 
+	UNION ALL 
 	
 	SELECT	N+1,
-			NextValue,
-			FibValue + NextValue
+		NextValue,
+		FibValue + NextValue
 	FROM fib
 	WHERE N <10
 	)
