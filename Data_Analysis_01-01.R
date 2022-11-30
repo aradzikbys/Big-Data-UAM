@@ -61,7 +61,8 @@ summary(model.1c)
 # Akaike
 AIC(model.1a, model.1b, model.1c)
 # AIC: 419.2, 418.8, 419.9 > > minor differences between models (<2)
-#       > Akaike chooses 1B, but  differences between models are minor (<2)
+#       > Akaike chooses 1B (best fit to the model),
+#         but differences between models are minor (<2)
 
 # Bayesian criterion
 BIC(model.1a, model.1b, model.1c)
