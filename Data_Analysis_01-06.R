@@ -1,4 +1,4 @@
-# Data analysis - 01
+# Data analysis - 01 - Michaelis-Menten model
 
 ##########
 # EX06
@@ -7,6 +7,9 @@
 # in successive moments of time [s], starting from 1s. Fit the Michaelis-Menten model to this data.
 # Draw a scatter plot with a fitted regression curve.
 # What speed the jumper will reach in the 17th second of the flight?
+
+# Clear enviroment
+rm(list = ls())
 
 input <- ('t	v
           1	10
