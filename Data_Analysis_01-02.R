@@ -1,4 +1,4 @@
-# Data analysis - 01
+# Data analysis - 01 - linear regression, prediction, working with outliers
 
 ##########
 # EX02
@@ -9,45 +9,61 @@
 # two-room apartment according to the estimated model?
 # Are the assumptions of the model fulfilled?
 
-# Data vectors
+# Clear enviroment
+rm(list=ls())
+
+# Vectors with data
 price <- c(300, 250, 400, 550, 317, 389, 425, 289, 389, 559) 
 rooms <- c(3, 3, 4, 5, 4, 3, 6, 3, 4, 5)
 
-dataset.02 <- data.frame(price,rooms) # Combine vectors to data frame
+# Combine vectors to data frame
+dataset.02 <- data.frame(price,rooms) 
 dataset.02
+
 
 # Create scatter plot:
 plot(data = dataset.02,
-     price  ~ rooms, # Watchout: PRICE should be on y axis!
+     # price should be on y axis
+     price ~ rooms, 
      pch = 20, cex = 1.5,
      xlab = 'Number of rooms', ylab = 'Price (k PLN)')
 
 # Linear model (Model 2A):
 model.2a = lm(price ~ rooms, data = dataset.02)
-abline(model.2a, col = 'darkgreen', lwd = 2)
+abline(model.2a, col = 2, lwd = 2)
+
+
+# With ggplot:
+library(ggplot2)
+ggplot(data = dataset.02, aes(x = rooms, y = price)) +
+  geom_point(data = dataset.02, aes(x = rooms, y = price)) +
+  geom_smooth(method = 'lm', colour = 2) +
+  labs(x = 'Number of rooms', y = "Price (k PLN)")
+
 
 # Summary
 summary(model.2a)
-# Adjusted R-squared: 0.4846  (price of the room depends in 48% on number of rooms)
-# p-value: 0.01521 (less than 0.05, significance level)
+# Adjusted R-squared: 0.4846 (price of the room depends in 48% on number of rooms,
+# not good enough, we aim for at least 0.6)
+# p-value: 0.01521 (OK = less than 0.05, significance level)
 
 # Significance of Pearson's coeff
 cor.test(~ price + rooms, data = dataset.02) 
-# p-value = 0.01521 (less than 5%, so it is statistically significant)
 # cor = 0.7361 (strong positive corellation)
-
-# Shapiro test p-value = 0.5969
-# p-value slightly higher than 0.05, so we can keep null hypotesis,
-# but more observations would be better
-shapiro.test((resid(model.2a))) 
 
 # Residuals histogram - histogram suggests that the residuals are not
 # normally distributed (right skewed) >> there are some outliers
 resid(model.2a)
-hist(resid(model.2a), col = 'palegreen4')
+hist(resid(model.2a), col = 2)
 
-# Constant variance 
-# Points are not symmetrically distributed, there are potential outliers
+# Shapiro test p-value = 0.5969
+# p-value slightly higher than 0.05, so we can keep null hypothesis (the test 
+# rejects the hypothesis of normality when the p-value is <= 0.05), but more
+# observations would be better. 
+shapiro.test((resid(model.2a))) 
+
+
+# Constant variance >> points are not symmetrically distributed, there are potential outliers
 plot(model.2a, 1, pch = 20) 
 
 # Normality >> OK in our case - symmetrical
@@ -59,7 +75,7 @@ plot(model.2a, 5, pch = 20)
 
 
 
-# Divide data set into 2: normal (w/o #7) + outlier (#7)
+# Divide data set into 2: observations w/o outlier (w/o #7) + outlier (#7)
 dataset.02A <- dataset.02[-7,]
 dataset.02B <- dataset.02[7,]
 
@@ -77,22 +93,50 @@ plot(data = dataset.02,
          legend = c('Model 2B (w/o outlier)','Model 2A (all observations)'),
          lwd = 3,
          lty = c('solid','dotted'),
-         col = c('darkgreen','cornsilk3'))
+         col = c(2,'darkgrey'))
 
 # Add data points:
 points(dataset.02A, pch = 20, cex = 1.5) +
-  points(dataset.02B, pch = 20, col = 'palegreen4', cex = 1.5)
+  points(dataset.02B, pch = 20, col = 'darkgrey', cex = 1.5)
 
 # Linear model for data w/o outlier:
 model.2b = lm(price ~ rooms, data = dataset.02A)
 
-abline(model.2a, col = 'cornsilk3', lwd = 2, lty ='dotted') +
-  abline(model.2b, col = 'darkgreen', lwd = 2)
+# Regression lines:
+abline(model.2a, col = 'darkgrey', lwd = 2, lty ='dotted') +
+  abline(model.2b, col = 2, lwd = 2)
+
+
+
+# With ggplot
+ggplot(data = dataset.02, aes(x = rooms, y = price)) +
+  
+  # Data points:
+  geom_point(data = dataset.02A, size = 2) +
+  geom_point(data = dataset.02B, colour = 'darkgrey', size = 2.5) +
+  
+  # Model w/o observation #7:
+  geom_smooth(data = dataset.02A, method = 'lm', se = FALSE, fullrange = TRUE,
+              aes(x = rooms, y = price,
+                  colour = 'Model w/o outlier',
+                  linetype = 'Model w/o outlier')) +
+  
+  # Model with all observations:
+  geom_smooth(data = dataset.02, method = 'lm', se = FALSE,
+              aes(x = rooms, y = price,
+                  colour = 'Model with all observations',
+                  linetype = 'Model with all observations')) +
+  
+  scale_color_manual(name = 'Model', values = c('red','darkgrey')) +
+  scale_linetype_manual(name = 'Model', values = c(1,3)) +
+  
+  labs(x = 'Number of rooms', y = "Price (k PLN)")
 
 
 # Summary
 summary(model.2b)
-# Adjusted R-squared: 0.7425 (vs 0.48 in Model 2A) >> improvement
+# Adjusted R-squared: 0.7425 (vs 0.48 in Model 2A). Residuals
+# are more symmetrical (from -91.4 to 96.9) >> improvement
 # p-value: 0.001741 (vs 0.01521 in Model 2A) >> significant improvement
 
 # Significance of Pearson's coeff
@@ -100,13 +144,13 @@ cor.test(~ price + rooms, data = dataset.02A)
 # p = 0.001741 (vs 0.015 in Model 2A)
 # cor = 0.8802 (vs 0.7361 in Model 2A)
 
+# Residuals histogram - residuals are normally distributed
+resid(model.2b)
+hist(resid(model.2b), col = 2)
+
 # Shapiro test p-value = 0.9398
 # p-value close to 1 >> in model 2B price strongly depends on the number of rooms
 shapiro.test((resid(model.2b))) 
-
-# Residuals histogram - residuals are normally distributed
-resid(model.2b)
-hist(resid(model.2b), col = 'palegreen4')
 
 # Constant variance 
 # Points are rather symmetrically distributed, potential outliers: #5, #6
@@ -116,7 +160,7 @@ plot(model.2b, 1, pch = 20)
 # Rather OK in our case - rather symmetrical, potential outliers: #5, #6
 plot(model.2b, 2, pch = 20) 
 
-# Influential points: #6 another potential outlier
+# Influential points: observation #6 another potential outlier
 plot(model.2b, 5, pch = 20) 
 
 
