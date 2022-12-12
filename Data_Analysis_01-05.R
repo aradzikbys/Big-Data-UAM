@@ -1,4 +1,4 @@
-# Data analysis - 01
+# Data analysis - 01 - logistic model
 
 ##########
 # EX05
@@ -7,6 +7,8 @@
 # from the carData package containing information about the US population from 1790 to 2000.
 # Draw a fitted regression function. Are the assumptions of the model met?
 
+# Clear enviroment
+rm(list = ls())
 
 # Install & load package
 install.packages("carData")
@@ -16,8 +18,6 @@ library(carData)
 # Assign data to the data set
 dataset.05 <- USPop
 dataset.05
-
-
 
 # Logistic model:
 model.5 <- nls(population ~ SSlogis(year, a, b, c), dataset.05)
