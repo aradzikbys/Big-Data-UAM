@@ -1,5 +1,4 @@
-# UAM - Data Analysis
-## Curriculum & contents
+## UAM - Data Analysis
 ### Data analysis - 01 </b>
 <br>01 - linear regression, models comparison (data: cars)
 <br>02 - linear regression, prediction, working with outliers (data: manual update)
