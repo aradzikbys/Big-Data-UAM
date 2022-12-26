@@ -20,8 +20,6 @@ rm(list = ls())
 
 # for data set
 library(mlbench)
-# for CreateDataPartition
-library(caret)
 # for kNN
 library(class)
 # for errorest
@@ -30,11 +28,8 @@ library(ipred)
 library(MASS) 
 # For NaiveBayes() command
 library(klaR)
-# Other:
-library(dplyr)
+# For biplot
 library(ggplot2)
-library(lattice)
-# for biplot
 library(ggbiplot)
 library(devtools)
 install_github("vqv/ggbiplot")
@@ -70,13 +65,13 @@ table(dataset03$Class)
 
 # Training and testing data sets (for 1NN):
 
-# indexes for training:
+# Indices for training:
 n = nrow(dataset03)
 train = sample(1:n, size = round(0.5*n), replace=FALSE)
 train <- sort(train)
 length(train)
 
-# indexes for testing:
+# Indices for testing:
 idx = seq(n)
 test <- idx[!idx %in% train]
 length(test)
@@ -106,32 +101,31 @@ model_nb_kernel <- NaiveBayes(Class ~ .,
 
 
 
-
 ###############################################
 # 04 Prediction errors
 ###############################################
 
 # Based on confusion matrix
 
-# 1NN
+# 1NN >> 68%
 (conf_1NN <- table(Class = dataset03$Class[test], Predict = model_1NN))
-1 - sum(diag(conf_1NN)) / nrow(dataset03) # 68%
+1 - sum(diag(conf_1NN)) / nrow(dataset03) 
 
-# LDA
+# LDA >> 20%
 (conf_LDA <- table(predict(model_LDA, dataset03)$class, dataset03$Class))
-1 - sum(diag(conf_LDA)) / nrow(dataset03) # 20%
+1 - sum(diag(conf_LDA)) / nrow(dataset03)
 
-# QDA
+# QDA >> 8%
 (conf_QDA <- table(predict(model_QDA, dataset03)$class, dataset03$Class))
-1 - sum(diag(conf_QDA)) / nrow(dataset03) # 8%
+1 - sum(diag(conf_QDA)) / nrow(dataset03) 
 
-# NB Normal
+# NB Normal >> 53%
 (conf_nb_normal <- table(predict(model_nb_normal, dataset03)$class, dataset03$Class))
-1 - sum(diag(conf_nb_normal)) / nrow(dataset03) # 53%
+1 - sum(diag(conf_nb_normal)) / nrow(dataset03) 
 
-# NB Kernel
+# NB Kernel >> 34%
 (conf_nb_kernel <- table(predict(model_nb_kernel, dataset03)$class, dataset03$Class))
-1 - sum(diag(conf_nb_kernel)) / nrow(dataset03) # 34%
+1 - sum(diag(conf_nb_kernel)) / nrow(dataset03)
 
 
 # Based on errorest:
@@ -177,7 +171,7 @@ errorest(Class ~ .,
          est.para = control.errorest(k = nrow(dataset03)), 
          use.kerrnel = FALSE)
 
-# NB Kernel >> 0.5414 
+# NB Kernel >> 0.5414 >> error?
 errorest(Class ~ ., 
          data = dataset03, 
          model = NaiveBayes, 
