@@ -16,6 +16,7 @@ install.packages("UsingR")
 library(UsingR)
 library('MASS')
 library(plyr)
+library(dplyr)
 library(ggbiplot)
 library(devtools)
 install_github("vqv/ggbiplot")
@@ -23,8 +24,8 @@ install_github("vqv/ggbiplot")
 # Check dataset, assign to variable
 ?painters
 
-dataset.01 <- painters
-dataset.01
+dataset01 <- painters
+head(dataset01)
 
 #'School' >> qualitive variable, indicated by a factor level  A-H.
 # The school to which a painter belongs:
@@ -36,11 +37,10 @@ dataset.01
 # F: Sixteenth Century;
 # G: Seventeenth Century;
 # H: French.
-school <- c(dataset.01$School)
+school <- c(dataset01$School)
 school
 
 # Re-name levels in the factor
-
 # Our current levels: "A" "B" "C" "D" "E" "F" "G" "H"
 levels(school)
 
@@ -53,16 +53,16 @@ school <- mapvalues(school,
 levels(school)
 
 # Remove "school" variable from data set
-dataset.01 <- dataset.01[,-5]
+dataset01 <- dataset01[,-5]
 
 # Boxplot >> there is no need to scale the data (boxes are close to each other) 
-boxplot(dataset.01)
+boxplot(dataset01)
 
 # Principal Components Analysis
-dataset.01.pca <- prcomp(dataset.01)
+dataset01_pca <- prcomp(dataset01)
 
 # Summary of PCA model
-summary(dataset.01.pca)
+summary(dataset01_pca)
 # Importance of first 3 components: they correspond to 93.6% of variance:
 #     PC1: explains 56% of the total variance,
 #     PC2: explains 28.5% of the total variance,
@@ -72,17 +72,19 @@ summary(dataset.01.pca)
 # Biplot (with ggplot)
 
 # Biplot - how initial variables map into principal components?
-ggbiplot(dataset.01.pca, choices = c(1,2))
+ggbiplot(dataset01_pca, choices = c(1,2))
 
 # Biplot with grouped schools:
-ggbiplot(dataset.01.pca, ellipse=TRUE, groups=school, labels = rownames(dataset.01)) +
+ggbiplot(dataset01_pca, ellipse=TRUE, groups=school, labels = rownames(dataset01)) +
   geom_point(aes(colour=school), size = 2.5)
 
 # Rotation:
-dataset.01.pca$rotation 
+dataset01_pca$rotation 
 
+###################################
+# SUMMARY
+###################################
 # Based on biplot and rotation:
-
 # To PC1 mostly contribute Expression (0.66), then in some part Composition (0.48)
 # PC2 has strong negative weight for Colour (-0.84),
 # PC3 has strong negative weight for Compostiion (-0.78) and positive weight of Expression (0.513)
@@ -100,4 +102,3 @@ dataset.01.pca$rotation
 # and Composition, all of them received rather low ratings for Colour.
 # >>16th Century Painters received rather low ratings in terms of Expression and Composition. 
 # High rated painters: Raphael, Rubens; low rated painters: Fr. Penni, Belini
-

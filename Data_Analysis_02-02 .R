@@ -2,7 +2,6 @@
 
 ##########
 # EX02
-
 #########
 # Using categorical and continuous variables from the Cars93 dataset from the MASS package,
 # perform principal component analysis. Compare (in separate charts):
@@ -22,66 +21,68 @@ install_github("vqv/ggbiplot")
 # Check dataset, assign to variable
 ?Cars93
 
-dataset.02 <- Cars93
-dataset.02
+dataset02 <- Cars93
+head(dataset02)
 
 # skimr: summary statistics about variables in data frame.
-# We miss values for Luggage.room (11) and Rear.seat.room (2), we need to exclude NA values:
-skimr::skim(dataset.02)
-dataset.02 <- na.omit(dataset.02)
+# We miss values for Luggage.room (11) and Rear.seat.room (2),
+# to perform PCA we need to exclude NA values:
+skimr::skim(dataset02)
+dataset02 <- na.omit(dataset02)
 
 # 2 groups in which we will compare data later:
-origin <- c(dataset.02$Origin)
-type <- c(dataset.02$Type)
+origin <- c(dataset02$Origin)
+type <- c(dataset02$Type)
 
 # For labels on chart:
-make <- c(dataset.02$Make)
+make <- c(dataset02$Make)
 
-# Check which columns are numeric (int, dbl) > we need to remove factors and labels
-as_tibble(dataset.02)
+# Check which columns are numeric (int, dbl) >> we need to remove factors and labels
+str(dataset02)
 
 # Categorical (fct) and continuous (int, dbl) variables:
-categorical.var <- c('Manufacturer', 'Model', 'Type', 'AirBags', 'DriveTrain',
+categorical <- c('Manufacturer', 'Model', 'Type', 'AirBags', 'DriveTrain',
                      'Cylinders', 'Man.trans.avail','Origin', 'Make')
 
-continuous.var <- c('Min.Price', 'Price', 'Max.Price', 'MPG.city', 'MPG.highway', 
+continuous <- c('Min.Price', 'Price', 'Max.Price', 'MPG.city', 'MPG.highway', 
                     'EngineSize', 'Horsepower', 'RPM', 'Rev.per.mile', 'Fuel.tank.capacity', 
                     'Passengers', 'Length', 'Wheelbase', 'Width', 'Turn.circle', 
                     'Rear.seat.room', 'Luggage.room', 'Weight')
 
-# Remove categorical variables (for PCA analysis):
-dataset.02 <- dataset.02[ , continuous.var]
+# For PCA analysis leave continuous variables in data set:
+dataset02 <- dataset02[ , continuous]
 
 
 # skimr: summary statistics about variables in data frame.
-# we don't miss any values now, out of 18 colums 18 are numeric
-skimr::skim(dataset.02)
+# we don't miss any values now, out of 18 colums 18 are numeric (int or num)
+skimr::skim(dataset02)
+str(dataset02)
 
 # We need to re-scale the data >> there is discrepancy between boxes scales
 # (RPM, Rev. per mile, Weight)
-boxplot(dataset.02)
+boxplot(dataset02)
 
 # PCA model:
-dataset.02.pca <- prcomp(dataset.02, scale. = TRUE)
+dataset02_pca <- prcomp(dataset02, scale. = TRUE)
 
 # Summary of PCA model - importance of components
-summary(dataset.02.pca) 
+summary(dataset02_pca) 
 # First 3 PCs explain 83.3% of variance >> we can confirm with screeplot
 
 # Screeplot 
-screeplot(dataset.02.pca, type = 'l', pch = 20) 
+screeplot(dataset02_pca, type = 'l', pch = 20) 
 # As of 4th PC the line flattens out, we should keep first 3 PCs
 
 
-# Initial biplot
-ggbiplot(dataset.02.pca, choices = c(1,2))
+# Initial biplot (with PC1 and PC2 as axis):
+ggbiplot(dataset02_pca, choices = c(1,2))
 # Price is highly correlated with horsepower
 # There is negative correlation between MPG (both highway and city) and cars'
 # weight and engine size, also fuel tank capacity (if we consume more gas > tank should be bigger),
 
 
 # Biplot #1: grouped by origin:
-ggbiplot(dataset.02.pca, ellipse=TRUE, groups=origin, labels=make) +
+ggbiplot(dataset02_pca, ellipse=TRUE, groups=origin, labels=make) +
   geom_point(aes(colour=origin), size = 2.5)
 # USA cars are bigger: they can fit more passengers, size of engine and car itself (lenght/width)
 # are bigger than non-USA. USA cars have also lower RPM value - engines are less dynamic >>
@@ -92,7 +93,7 @@ ggbiplot(dataset.02.pca, ellipse=TRUE, groups=origin, labels=make) +
 
 
 # Biplot #2: grouped by origin AND type:
-ggbiplot(dataset.02.pca, ellipse=TRUE, groups=type, labels=make) +
+ggbiplot(dataset02_pca, ellipse=TRUE, groups=type, labels=make) +
   geom_point(aes(colour=type, shape = origin), size = 2.5)
 # Midsize ans Sporty cars are the most diverse group (midsize in terms of price -
 # cars from USA are cheaper than those non-USA originated). 
