@@ -28,23 +28,24 @@ input <- ('t	v
           14	49
           15	50')
 
-dataset.06 <- read.table(textConnection(input), header = TRUE)
-dataset.06
+dataset06 <- read.table(textConnection(input), header = TRUE)
+dataset06
 
 # Michaelis-Menten:
-model.6 <- nls(v ~ SSmicmen(t, a, b), dataset.06)
+model6 <- nls(v ~ SSmicmen(t, a, b), dataset06)
 
 # Summary (values of parameters and tests of significance)
-summary(model.6)
+summary(model6)
 # We have 2 parameters (a = 70.1793, b = 6.0109), both are relevant to the model (***).
-# 13 degrees of freedom = number of observation (15) - the number of variables (2: a,b)
+# 13 degrees of freedom = number of observation (15) - the number of variables (a,b)
 
 # Michaelis-Menten model: y = a*x / (b+x)
-a <- coef(model.6)[1] # Estimate a from model.6
-b <- coef(model.6)[2] # Estimate b from model.6
+a <- coef(model6)[1] # Estimate a from model.6
+b <- coef(model6)[2] # Estimate b from model.6
+
 
 # Create plot
-plot(data = dataset.06,
+plot(data = dataset06,
      v ~ t,
      pch = 20, cex = 1.5,
      xlim = c(0, 20), ylim = c(0, 55),
@@ -53,10 +54,26 @@ plot(data = dataset.06,
 # Add Michaelis-Menten curve:
 curve((a*x / (b+x)),
       add = TRUE, 
-      col = 'darkgreen', lwd = 2)
+      col = 2, lwd = 2)
+
+# With ggplot:
+# Create dataframe with Michaelis-Menten values for velocity:
+tm <- dataset06$t
+vel <- c((a * tm / (b + tm)))
+dataset06_gg <- data.frame(tm,vel)
+
+ggplot(data = dataset06, aes(x = t, y = v))+
+  xlab('Time [s]') + ylab('Velocity [m/s]') +
+  geom_point(data = dataset06, aes(x = t, y = v)) +
+  geom_line(data = dataset06_gg, aes(x = tm, y = vel), col = 2, size = 1)
+
 
 # Predict speed of the jumper in 17th second of the flight:
 seventeenth <- data.frame(t=c(17))
-predict(model.6,seventeenth)
+predict(model6,seventeenth)
 
+
+##############
+# ANSWER:
+##############
 #Predicted speed: 51.85 m/s
