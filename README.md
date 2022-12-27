@@ -12,3 +12,5 @@
 <br>02 - PCA - loadings of components, ggbiplot (data: Cars93 from the MASS package)
 ### Data analysis - 03 </b>
 <br>01 - classification - 1NN, LDA, QDA, NB, visualization of prediction using  PCA (data: Vehicles from the mlbench package)
+### Data analysis - 04 </b>
+<br>01 - cluster analysis - number of clusters, hierarchical & non-hierarchical cluster analysis. Clusters visualization on dendrogram and PCA (data: mtcars)
