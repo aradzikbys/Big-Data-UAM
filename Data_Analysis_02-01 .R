@@ -11,17 +11,28 @@
 # Clear enviroment
 rm(list = ls())
 
-# Install and load packages
+
+
+###############################################
+# 01 Libraries
+###############################################
+
+# For data set:
 install.packages("UsingR")
 library(UsingR)
 library('MASS')
+# For biplot:
 library(plyr)
 library(dplyr)
 library(ggbiplot)
 library(devtools)
 install_github("vqv/ggbiplot")
 
-# Check dataset, assign to variable
+
+###############################################
+# 02 Data set
+###############################################
+
 ?painters
 
 dataset01 <- painters
@@ -55,6 +66,12 @@ levels(school)
 # Remove "school" variable from data set
 dataset01 <- dataset01[,-5]
 
+
+
+###############################################
+# 03 PCA
+###############################################
+
 # Boxplot >> there is no need to scale the data (boxes are close to each other) 
 boxplot(dataset01)
 
@@ -68,6 +85,10 @@ summary(dataset01_pca)
 #     PC2: explains 28.5% of the total variance,
 #     PC3: explains 9.1% of the total variance.
 
+
+###############################################
+# 04 Biplots
+###############################################
 
 # Biplot (with ggplot)
 

@@ -11,14 +11,23 @@
 # Clear enviroment
 rm(list = ls())
 
-# Install and load packages
+
+###############################################
+# 01 Libraries
+###############################################
+
+# For data set:
 library('MASS')
 library(dplyr)
+# For ggbiplot:
 library(ggbiplot)
 library(devtools)
 install_github("vqv/ggbiplot")
 
-# Check dataset, assign to variable
+###############################################
+# 02 Data set
+###############################################
+
 ?Cars93
 
 dataset02 <- Cars93
@@ -58,6 +67,12 @@ dataset02 <- dataset02[ , continuous]
 skimr::skim(dataset02)
 str(dataset02)
 
+
+###############################################
+# 03 PCA
+###############################################
+
+
 # We need to re-scale the data >> there is discrepancy between boxes scales
 # (RPM, Rev. per mile, Weight)
 boxplot(dataset02)
@@ -73,6 +88,10 @@ summary(dataset02_pca)
 screeplot(dataset02_pca, type = 'l', pch = 20) 
 # As of 4th PC the line flattens out, we should keep first 3 PCs
 
+
+###############################################
+# 04 Biplots
+###############################################
 
 # Initial biplot (with PC1 and PC2 as axis):
 ggbiplot(dataset02_pca, choices = c(1,2))
