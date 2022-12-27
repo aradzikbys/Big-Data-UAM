@@ -67,7 +67,7 @@ model.1NN <- knn(data.set[, 2:3],
                  cl = data.set$class, 
                  k = 1, 
                  prob = TRUE) 
-
+model.1NN
 model.3NN
 
 # Model 3NN with posterior probabilities
@@ -226,11 +226,11 @@ library(ellipse)
 
 # 1st set of points (100 independent observations)
 X1 <- mvrnorm(100, 
-              # covariance matrix
+              # Covariance matrix
               mu = c(0, 0), 
               Sigma = matrix(c(1, 0, 0, 1), 
               # N_2(mu, Sigma) - bivariate normal
-              nrow = 2))
+                            nrow = 2))
 
 # Generated points
 plot(X1, col = 1, pch = 20, xlim = c(-10, 10), ylim = c(-10, 10)) 
@@ -243,10 +243,11 @@ lines(ellipse(matrix(c(1, 0, 0, 1), nrow = 2)),
 
 # 2nd set of points:
 X2 <- mvrnorm(100, 
-              # center will be moved to (3,3)
+              # Center will be moved to (3,3)
               mu = c(3, 3), 
               Sigma = matrix(c(1, 0, 0, 1), 
                              nrow = 2))
+
 points(X2, col = 2, pch = 20)
 lines(ellipse(matrix(c(1, 0, 0, 1), nrow = 2), 
               centre = c(3, 3)), 
@@ -256,7 +257,7 @@ lines(ellipse(matrix(c(1, 0, 0, 1), nrow = 2),
 
 # 3rd set of points:
 X3 <- mvrnorm(100,
-              # center will be moved to (-4,-4)
+              # Center will be moved to (-4,-4)
               mu = c(-4, -4),
               # Bigger variance:
               Sigma = matrix(c(3, 0, 0, 3), 
@@ -278,8 +279,6 @@ X4 <- mvrnorm(100,
                              nrow = 2))
 points(X4, col = 4, pch = 20)
 lines(ellipse(matrix(c(1, 0.7, 0.7, 1), nrow = 2), centre = c(5, -5)), type = 'l', col = 4, lwd = 2)
-
-
 
 
 
@@ -312,6 +311,7 @@ library(MASS)
 # LDA uses means and variances of each class in order to create a linear boundary
 # (or separation) between them. This boundary is delimited by the coefficients.
 
+
 # Prior estimated as fractions
 (model.lda <- lda(class ~ ., data.set)) 
 
@@ -340,7 +340,7 @@ library(MASS)
 
 
 # On diagonal correctly classified cases (confusion matrix)
-(contingency.table <- table(classification$class, data.set$class)) 
+(contingency.table <- table(data.set$class, classification$class)) 
 # 19 earthquakes were correclty predicted, 1 earthquake was confused with explosion
 # No explosion has been confused with an equake
 
@@ -380,12 +380,14 @@ contour(x, y, matrix(z, 100),
         lwd = 2, drawlabels = FALSE,
         col = 8) 
 
-# Decision boundary (for prior)
+# Decision boundary (for prior 50-50) >> closer to 'equake', no impact from
+# higher number of datapoints
 contour(x, y, matrix(z1, 100), 
         level = 0, 
         add = TRUE,
         lty = 2,
         lwd = 2, drawlabels = FALSE) 
+
 
 
 
@@ -405,6 +407,10 @@ skimr::skim(data.set)
 ###                 LDA                ###
 ##########################################
 
+# No factor values:
+sapply(data.set, class)
+
+# Change class to factor:
 data.set$Class <- as.factor(data.set$Class)
 
 model.lda <- lda(Class ~ Alcohol + Flavanoids, 
@@ -421,6 +427,7 @@ classification.lda <- predict(model.lda)
 # Quality of classification - 92% (there is no default treshold)
 # 1 - error rate (resubsitution)
 100 * sum(diag(contingency.table.lda)) / sum(contingency.table.lda) 
+round(100 - 100 * sum(diag(contingency.table.lda)) / sum(contingency.table.lda),2)
 
 # Sizes of classified groups
 table(data.set$Class) 
@@ -454,7 +461,8 @@ z2.LDA <- Z.LDA$posterior[, 2] - pmax(Z.LDA$posterior[, 1], Z.LDA$posterior[, 3]
 # Contours on the graph:
 contour(x, y, matrix(z1.LDA, 100), level = 0, add = TRUE, lwd = 2, drawlabels = FALSE)
 contour(x, y, matrix(z2.LDA, 100), level = 0, add = TRUE, lwd = 2, drawlabels = FALSE)
-# contour(x, y, matrix(z3.LDA, 100), level = 0, add = T, labels = '', lwd = 2, col = 'red') # Additional line (covers up with two first)
+# Additional line (covers up with two first)
+# contour(x, y, matrix(z3.LDA, 100), level = 0, add = T, labels = '', lwd = 2, col = 'red')
 
 
 
@@ -486,7 +494,7 @@ z2.QDA <- Z.QDA$posterior[, 2] - pmax(Z.QDA$posterior[, 1], Z.QDA$posterior[, 3]
 
 # Contours:
 contour(x, y, matrix(z1.QDA, 100), level = 0, add = TRUE, labels = '', lwd = 2, lty = 3, col = 'blue', drawlabels = FALSE)
-contour(x, y, matrix(z3.QDA, 100), level = 0, add = TRUE, labels = '', lwd = 2, lty = 3, col = 'blue', drawlabels = FALSE)
+contour(x, y, matrix(z2.QDA, 100), level = 0, add = TRUE, labels = '', lwd = 2, lty = 3, col = 'blue', drawlabels = FALSE)
 # contour(x, y, matrix(z3.QDA, 100), level = 0, add = T, labels = '', lwd = 2, lty = 2, col = 'blue')
 
 
@@ -509,7 +517,8 @@ skimr::skim(data.set)
 data.set$LOC <- as.factor(data.set$LOC)
 
 table(data.set$LOC) 
-# Seven classes - watchout! There are only 2 shells in location 5
+# Seven classes
+# Watchout! There are only 2 shells in location 5 >>
 # Too little for QDA, not a problem for LDA
 
 model.lda <- lda(LOC ~ ., data = data.set)
@@ -518,7 +527,7 @@ classification.lda <- predict(model.lda)
 # Confusion matrix
 (contingency.table.lda <- table(data.set$LOC, classification.lda$class))
 
-# Resub. error rate
+# Resub. error rate >> 11.65644
 100 - 100 * sum(diag(contingency.table.lda)) / sum(contingency.table.lda) 
 
 par(mfrow = c(2, 1))
@@ -548,15 +557,15 @@ model.qda <- qda(LOC ~ ., data = data.set)
 df <- data.set[data.set$LOC != '5', ]
 df$LOC
 
-# df$LOC  there is no 5 5 , but 5 is visible in Levels > drop Level
+# df$LOC there is no 5 5 , but 5 is visible in Levels > we need to drop Level
 df$LOC <- droplevels(df$LOC)
-
+df$LOC
 
 model.qda <- qda(LOC ~ ., df)
 classification.qda <- predict(model.qda)
 (contingency.table.qda <- table(df$LOC, classification.qda$class))
 
-# Resubstitution error (vs 11.65 in LDA:
+# Resubstitution error (vs 11.65 in LDA):
 100 - 100 * sum(diag(contingency.table.qda))/sum(contingency.table.qda) 
 
 
@@ -826,8 +835,8 @@ errorest(Kyphosis ~ .,
          predict = function(o, newdata) predict(o, newdata, type = 'class'),
          est.para = control.errorest(k = nrow(kyphosis))) 
 
-# Prunning; k corresponds to alpha in weakest-link pruning >>
-# we remove some leafs w/o impact on prediction quality
+# Prunning: k corresponds to alpha in weakest-link pruning >>
+# We remove some leafs w/o impact on prediction quality
 (model.Gini.prune <- cv.tree(model.Gini.tree, 
                              FUN = prune.misclass)) 
 
@@ -855,6 +864,10 @@ fancyRpartPlot(model.Gini)
 # As above but with different colors
 fancyRpartPlot(model.Gini, palettes = c('Greens', 'Oranges')) 
 
+
+
+
+
 # For weather data set
 library(rattle.data) 
 
@@ -863,7 +876,7 @@ head(weather)
 skimr::skim(weather)
 
 model.weather <- rpart(RainTomorrow ~ ., 
-                       data = weather[, setdiff(names(weather), c('Date', 'Location', 'RISK_MM'))])
+                       data = weather[, setdiff(names(weather),c('Date', 'Location', 'RISK_MM'))])
 summary(model.weather)
 fancyRpartPlot(model.weather)
 
@@ -882,7 +895,7 @@ fancyRpartPlot(model.weather.pruned)
 # For randomForest() command
 library(randomForest) 
 
-#second method - boosting
+# Second method - boosting
 model.bagging <- randomForest(Kyphosis ~ ., 
                               importance = TRUE, 
                               data = kyphosis, 
@@ -893,13 +906,13 @@ model.bagging <- randomForest(Kyphosis ~ .,
 # Confusion matrix and OOB (out of bag) error rate
 model.bagging 
 
-# Permutation variable importance (higher value mean bigger imprtance)
+# Permutation variable importance (higher value >> bigger importance)
 importance(model.bagging, type = 1) 
 
-# Mean decrease variable importance (higher value mean bigger imprtance)
+# Mean decrease variable importance (higher value >> bigger importance)
 importance(model.bagging, type = 2) 
 
-#plot of importances
+# Plot of importances
 varImpPlot(model.bagging, pch = 20) 
 (model.rf <- randomForest(Kyphosis ~ ., importance = TRUE,
                           data = kyphosis, 
@@ -907,10 +920,10 @@ varImpPlot(model.bagging, pch = 20)
                           # Random forest with 2 covarietes at each split 
                           mtry = 2)) 
 
-# Permutation variable importance (higher value mean bigger imprtance)
+# Permutation variable importance (higher value >> bigger importance)
 importance(model.rf, type = 1) 
 
-# Mean decrease variable importance (higher value mean bigger imprtance)
+# Mean decrease variable importance (higher value >>  bigger imprtance)
 importance(model.rf, type = 2) 
 
 # Plot of importances
@@ -926,15 +939,17 @@ varImpPlot(model.rf, pch = 20)
 
 # Only single hidden layer
 library(nnet) 
-#jak species (dataset iris) zalezy od 4 paramentrów (sepal/petal)
+
 model.nn <- nnet(Species ~ ., 
                  data = iris, 
-                 # Ile neuronów w warstwie ukrytej? Size of hidden layer = 5
+                 # How many neurons in hidden layer? (size of hidden layer = 5)
                  size = 5, 
                  maxit = 1000) 
-# 4 neurony (4 cechy) na wejściu
-# na wyjściu - 3 klasy (species)
-# w środku 5 neuronów
+
+# 4 neurons at the enter (4 variables)
+# 5 neurons in hidden layer
+# 3 neurons at the exit (3 classes)
+
 
 # 1-2: 4 * 5 weights
 # 2-3: 5 * 3 weights
@@ -949,7 +964,9 @@ errorest(Species ~ .,
          data = iris, 
          model = nnet, 
          estimator = 'cv',
-         predict = function(o, newdata) as.factor(predict(o, newdata, 'class')), size = 5, maxit = 1000)
+         predict = function(o, newdata) as.factor(predict(o, newdata, 'class')),
+         size = 5,
+         maxit = 1000)
 
 
 # Function from GitHub to plot network
@@ -958,10 +975,13 @@ root.url <- 'https://gist.githubusercontent.com/fawda123'
 raw.fun <- paste( root.url, '5086859/raw/cc1544804d5027d82b70e74b83b3941cd2184354/nnet_plot_fun.r', sep = '/')
 script <- getURL(raw.fun, ssl.verifypeer = FALSE)
 eval(parse(text = script))
+
 # The function is now loaded in our workspace as plot.nnet. 
 rm('script','raw.fun') 
+
 # A standard illustration
 plot(model.nn, nid = FALSE)
+
 # A neural interpretation diagram. The black lines are
 # positive weights and the grey lines are negative weights. 
 # Line thickness is in proportion to magnitude of the weight relative to all others.
@@ -969,14 +989,20 @@ plot(model.nn, nid = FALSE)
 # similar to intercept terms in a regression model.
 plot(model.nn, nid = TRUE)
 
-plot(model.nn, pos.col = 'lightgreen', neg.col = 'lightblue', rel.rsc = 15, 
-     circle.cex = 7, cex = 1.4, circle.col = 'darkred')
+plot(model.nn,
+     pos.col = 3,
+     neg.col = 2,
+     rel.rsc = 15, 
+     circle.cex = 7,
+     cex = 1.4,
+     circle.col = 8)
 
 
 
 ##########################################
 ###    SVM (Support Vector Machines)   ###
 ##########################################
+
 library(e1071)
 model.svm <- svm(Species ~ ., 
                  data = iris)
@@ -994,8 +1020,10 @@ errorest(Species ~ .,
 ##########################################
 ###         Tuning parameters          ###
 ##########################################
+
 # for tune.*() commands
 library(e1071) 
+
 model.rf.tune <- tune.randomForest(Kyphosis ~ ., 
                                    data = kyphosis,
                                    # We are looking for the best m
@@ -1003,15 +1031,19 @@ model.rf.tune <- tune.randomForest(Kyphosis ~ .,
 # The best m
 model.rf.tune$best.parameters 
 plot(model.rf.tune)
+
 # Error rate for the best m
 model.rf.tune$best.performance 
+
 # Errors of all models
 model.rf.tune$performances 
+
 model.knn.tune <- tune.knn(x = kyphosis[, 2:4], 
                            y = kyphosis$Kyphosis,
                            # We are looking for the best k
                            k = 1:10) 
 plot(model.knn.tune)
+
 model.knn.tune$performances
 
 tune.svm(Species ~ ., 
@@ -1020,6 +1052,7 @@ tune.svm(Species ~ .,
          cost = 10^(-1:2),
          # The best parameters C = 1, gamma = 0.5
          gamma = c(.5, 1, 2)) 
+
 .Last.value$performances
 
 model.svm <- svm(Species ~ ., 
@@ -1043,27 +1076,33 @@ predict(model.svm, newdata = data.frame(Sepal.Length = 5.0,
 ##########################################
 # Library for DL
 library(h2o) 
+h2o.init()
+
 # Cluster initialization
 localH2O <- h2o.init(max_mem_size = '2g') 
 
 # Data transform
 dat_h2o <- as.h2o(iris) 
-# pierwsze 4 kolumny - x, ostatnia - y
+
+# First 4 columns - x, last - y
 model.dl <- h2o.deeplearning(x = 1:4, 
                              y = 5, 
                              training_frame = dat_h2o, 
-                             #tangens hiperboliczony
+                             # Tanh >> hyperbolical tangens
                              activation = 'Tanh', 
-                             #3 warstwy neuronów
+                             # 3 layers of neurons
                              hidden = c(10, 10, 10), 
-                             #500 epok
+                             # 500 epochs
                              epochs = 500, 
                              variable_importances = TRUE)
+
 # Prediction
 predict.result <- as.data.frame(h2o.predict(model.dl, dat_h2o))$predict 
+
 # Resubstitution error rate
 sum(predict.result != iris$Species)/nrow(iris) 
 plot(model.dl)
+
 # Importance of variables
 h2o.varimp_plot(model.dl) 
 
@@ -1073,6 +1112,7 @@ h2o.varimp_plot(model.dl)
 ###             Caret package          ###
 ##########################################
 library(caret)
+
 # For transparentTheme() command
 library(AppliedPredictiveModeling) 
 
@@ -1094,7 +1134,9 @@ featurePlot(x = iris[, 1:4], y = iris$Species, plot = 'ellipse', auto.key = list
 # Overlayed Density Plot
 # Theme
 transparentTheme(trans = 1) 
-# gatunki różnią się głównie petal lenghts i petal width
+
+# Species differentiate mostly in petal lenghts and petal width
+# (species are not overlapping on those feautures)
 featurePlot(x = iris[, 1:4], y = iris$Species, plot = 'density', 
             scales = list(x = list(relation = 'free'), y = list(relation = 'free')), 
             adjust = 1.5, pch = '|', layout = c(4, 1), auto.key = list(columns = 3))
@@ -1124,7 +1166,7 @@ testing  <- Sonar[-in.training, ]
 # trainControl(method = 'repeatedcv', number = 10, repeats = 10,
 # classProbs = T, summaryFunction = twoClassSummary)
 
-# metoda sprawdzania krzyżowego z powtórzeniami, 10cv, 10 repeats > 10 x 10CV
+# Cross validation method with repetition >> 10 CV x 10 repeats
 
 fit.control <- trainControl(method = 'repeatedcv', 
                             number = 10, 
@@ -1137,8 +1179,8 @@ fit.control <- trainControl(method = 'repeatedcv',
 
 set.seed(1000)
 
-# uczenie modelu
-# wnaszym zbiorze danym jest jeden factor - class, reszta to parametry
+# Learning model
+# In our data set there is only 1 factor > rest: parameters (variables)
 (svm.fit <- train(Class ~ ., 
                   data = training,
                   method = 'svmRadial', 
@@ -1159,7 +1201,7 @@ set.seed(1000)
 # Expected Accuracy = rowsum * colsum / N
 
 # Kappa = (observed accuracy - expected accuracy) / (1 - expected accuracy)
-# Kappa - im bliżej jedynki tym lepiej
+# Kappa - closer to 1, the better
 
 # The kappa statistic is a measure of how closely the instances classified by the classifier matched 
 # the data labeled as ground truth, controlling for the accuracy of a random classifier as measured by the expected accuracy.
@@ -1172,27 +1214,33 @@ set.seed(1000)
 # more reliably through the kappa statistic because of this scaling in relation to expected accuracy.
 
 
-#Accuracy jest ok jeżeli grupy są zbalansowane, w przeciwnym przypadku dobrze małe grupy dołączyć do większych
-# grup. 
+# Accuracy is fine, if groups are balanced (otherwise, model can attach smaller
+# groups to larger ones) 
 
 # Confusion matrix
 confusionMatrix(svm.fit) 
+
 # Confusion matrix with additional measures (https://topepo.github.io/caret/premade/cm.jpg)
 confusionMatrix(predict(svm.fit, testing), testing$Class) 
 
 # Theme
 trellis.par.set(caretTheme()) 
+
 # Plotting the resampling profile
 plot(svm.fit, pch = 20) 
+
 # As above from ggplot2
 ggplot(svm.fit) 
+
 # Prediction
 predict(svm.fit, newdata = testing) 
+
 # Posterior probabilities
 predict(svm.fit, newdata = testing, type = 'prob')
 
 
 set.seed(1000)
+
 # Regularized discriminant analysis
 (rda.fit = train(Class ~ ., 
                  data = training, 
@@ -1203,16 +1251,20 @@ set.seed(1000)
 
 # Heatmap for parameters
 plot(rda.fit, metric = 'Accuracy', plotType = 'level', scales = list(x = list(rot = 90)))
+
 # The collection of models to compare them
 (resamps = resamples(list(SVM = svm.fit, RDA = rda.fit))) 
 summary(resamps)
+
 # Comparison of classifiers
-bwplot(resamps, layout = c(2, 1)) # Box plots
-dotplot(resamps, metric = 'Accuracy') # Dot plots - SVM jest lepsza (statystycznie istotniejsza)
+# Box plots
+bwplot(resamps, layout = c(2, 1))
+# Dot plots - SVM is better (statistically more significant)
+dotplot(resamps, metric = 'Accuracy') 
 
 # Bland-Altman plot (difference plot, Tukey mean-difference plot)
-xyplot(resamps, what = 'BlandAltman') 
-# więcej punktów na górze - SVM jest lepsze
+# More points above the line >> SVM is better
+xyplot(resamps, what = 'BlandAltman')
 
 # Bland and Altman plots are extensively used to evaluate the agreement among two different methods.
 # The coordinates of a given sample with values of S_1 and S_2:
@@ -1222,14 +1274,20 @@ xyplot(resamps, what = 'BlandAltman')
 # Since models are fit on the same versions of the training data, it makes sense to make inferences 
 # on the differences between models.
 (diff.values = diff(resamps))
-summary(diff.values) # t-test to compare models
+
+# t-test to compare models
+summary(diff.values) 
+
 bwplot(diff.values, layout = c(2, 1))
+
 dotplot(diff.values)
 
 # Parallel Processing
-library(doMC) # For registerDoMC() function
-registerDoMC(cores = 4)
+# For registerDoMC() function
+library(doMC) 
+
 # All subsequent models are then run in parallel
+registerDoMC(cores = 4)
 
 # Variable Importance
 (svm.imp = varImp(svm.fit, scale = FALSE))
