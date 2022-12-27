@@ -122,7 +122,7 @@ contour(x, y,
         drawlabels = FALSE) 
 
 # Add original data points:
-points(data.set[, 2:3], pch = 19, col = data.set$class, cex = 2)
+points(data.set[, 2:3], pch = 19, col = data.set$class, cex = 1.5)
 
 
 

@@ -18,25 +18,34 @@ rm(list = ls())
 # 01 Libraries
 ###############################################
 
-# for data set
+# For data set
 library(mlbench)
-# for kNN
+
+# For kNN
 library(class)
-# for errorest
+
+# For errorest
 library(ipred) 
+
 # For LDA and QDA
 library(MASS) 
+
 # For NaiveBayes() command
 library(klaR)
+
 # For biplot
 library(ggplot2)
 library(ggbiplot)
 library(devtools)
 install_github("vqv/ggbiplot")
+library(wesanderson)
 
+# For confusion matrix
+library(caret)
+library(lattice)
 
 ###############################################
-# 03 Data set
+# 02 Data set
 ###############################################
 
 # Assign data set to variable, check data set (missing values, distribution 
@@ -76,15 +85,20 @@ idx = seq(n)
 test <- idx[!idx %in% train]
 length(test)
 
+
 ###############################################
 # 03 Models - 1NN, LDA, QDA, NB (normal and kernel)
 ###############################################
 
 # Models
+                # train data - index + numeric variables
 model_1NN <- knn(dataset03[train, 1:18],
-                 dataset03[test, 1:18],
-                 dataset03$Class[train],
-                 k = 1)
+                # test data - index + numeric variables
+                dataset03[test, 1:18],
+                # train data classes 
+                dataset03$Class[train],
+                # number of neighbours
+                k = 1)
 
 model_LDA <- lda(Class ~ .,
                  data = dataset03)
@@ -100,69 +114,92 @@ model_nb_kernel <- NaiveBayes(Class ~ .,
                               usekernel = TRUE) 
 
 
-
 ###############################################
 # 04 Prediction errors
 ###############################################
 
 # Based on confusion matrix
 
-# 1NN >> 68%
-(conf_1NN <- table(Class = dataset03$Class[test], Predict = model_1NN))
-1 - sum(diag(conf_1NN)) / nrow(dataset03) 
+# 1NN >> accuracy 0.6028
+# Prediction error = 1 - 0.6028 = 0.3972 >> 40%
+confusionMatrix(data = model_1NN, reference = dataset03$Class[test])
 
-# LDA >> 20%
-(conf_LDA <- table(predict(model_LDA, dataset03)$class, dataset03$Class))
-1 - sum(diag(conf_LDA)) / nrow(dataset03)
+# LDA >> accuracy 0.7979
+# Prediction error = 1 - 0.7979 = 0.2021 >> 20%
+confusionMatrix(data = predict(model_LDA, dataset03)$class, reference = dataset03$Class)
 
-# QDA >> 8%
-(conf_QDA <- table(predict(model_QDA, dataset03)$class, dataset03$Class))
-1 - sum(diag(conf_QDA)) / nrow(dataset03) 
+# QDA >> accuracy 0.9161
+# Prediction error = 1 - 0.9161 = 0.0839 >> 8%
+confusionMatrix(data = predict(model_QDA, dataset03)$class, reference = dataset03$Class) 
 
-# NB Normal >> 53%
-(conf_nb_normal <- table(predict(model_nb_normal, dataset03)$class, dataset03$Class))
-1 - sum(diag(conf_nb_normal)) / nrow(dataset03) 
+# NB Normal >> accuracy 0.4728
+# Prediction error = 1 - 0.4728 = 0.5272 >> 53%
+confusionMatrix(data = predict(model_nb_normal, dataset03)$class, reference = dataset03$Class)
 
-# NB Kernel >> 34%
-(conf_nb_kernel <- table(predict(model_nb_kernel, dataset03)$class, dataset03$Class))
-1 - sum(diag(conf_nb_kernel)) / nrow(dataset03)
+# NB Kernel >> accuracy 0.6596
+# Prediction error = 1 - 0.6596 = 0.3404 >> 34%
+confusionMatrix(data = predict(model_nb_kernel, dataset03)$class, reference = dataset03$Class)
 
 
-# Based on errorest:
+# Based on errorest (cross validation & bootstrap)
 
-# 1NN >> error(?)
+# 1NN CV >> 0.3475
 mymod <- function(formula, 
                   data, 
                   l = 1) {
   ipredknn(formula = formula, data = data, k = l)
   
 }
-errorest(class ~ ., 
-         data = dataset.03, 
+errorest(Class ~ ., 
+         data = dataset03, 
          model = mymod, 
          estimator = 'cv', 
          predict = function(o, newdata) predict(o, newdata,  'class'), 
-         est.para = control.errorest(k = nrow(data.set)), 
+         est.para = control.errorest(k = nrow(dataset03)), 
          l = 1)
 
+# 1NN bootstrap >> 0.3642
+errorest(Class ~ ., 
+         data = dataset03, 
+         model = ipredknn, 
+         estimator = 'boot', 
+         predict = function(o, newdata) predict(o, newdata, 'class'), 
+         est.para = control.errorest(nboot = 100), 
+         k = 1)
 
-# LDA >> 0.221
+# LDA CV>> 0.221
 errorest(Class ~ ., 
          data = dataset03, 
          model = lda, 
          estimator = 'cv', 
          predict = function(o, newdata) predict(o, newdata)$class, 
-         est.para = control.errorest(k = nrow(dataset03))) 
+         est.para = control.errorest(k = nrow(dataset03)))
 
-# QDA >> 0.144
+# LDA bootstrap >> 0.226
+errorest(Class ~ ., 
+         data = dataset03, 
+         model = lda, 
+         estimator = 'boot', 
+         predict = function(o, newdata) predict(o, newdata)$class, 
+         est.para = control.errorest(nboot = 100))
+
+# QDA CV >> 0.1442 
 errorest(Class ~ ., 
          data = dataset03, 
          model = qda, 
          estimator = 'cv', 
          predict = function(o, newdata) predict(o, newdata)$class, 
-         est.para = control.errorest(k = nrow(dataset03))) 
+         est.para = control.errorest(k = nrow(dataset03)))
 
-# NB Normal >> 0.5414 
+# QDA bootstrap >> 0.1593 
+errorest(Class ~ ., 
+         data = dataset03, 
+         model = qda, 
+         estimator = 'boot', 
+         predict = function(o, newdata) predict(o, newdata)$class, 
+         est.para = control.errorest(nboot = 100))
+
+# NB Normal CV >> 0.5414 
 errorest(Class ~ ., 
          data = dataset03, 
          model = NaiveBayes, 
@@ -171,19 +208,28 @@ errorest(Class ~ .,
          est.para = control.errorest(k = nrow(dataset03)), 
          use.kerrnel = FALSE)
 
-# NB Kernel >> 0.5414 >> error?
+# NB Normal bootstrap >> 0.5511 
 errorest(Class ~ ., 
          data = dataset03, 
          model = NaiveBayes, 
-         estimator = 'cv', 
+         estimator = 'boot', 
          predict = function(o, newdata) predict(o, newdata)$class, 
-         est.para = control.errorest(k = nrow(dataset03)), 
+         est.para = control.errorest(nboot = 100), 
+         use.kerrnel = FALSE)
+
+# NB Kernel >> error for CV, with bootstrap: 0.5435
+errorest(Class ~ ., 
+         data = dataset03, 
+         model = NaiveBayes, 
+         estimator = 'boot', 
+         predict = function(o, newdata) predict(o, newdata)$class, 
+         est.para = control.errorest(nboot = 100), 
          use.kerrnel = TRUE)
 
 ##############
 # ANSWER:
 ##############
-# Chosen model: QDA (lowest prediction error), there is enough data in each
+# Chosen model: QDA (lowest prediction error). There is enough data in each
 # class to correctly work with that method.
 
 
@@ -200,6 +246,6 @@ dataset03_pca <- prcomp(dataset03[,-19], scale. = TRUE)
 
 # Biplot:
 ggbiplot(dataset03_pca, groups = real, labels = dataset03$Class) +
-  geom_point(aes(colour=real, shape = predicted), size = 2.5)
-
-
+  geom_point(aes(shape = predicted, colour=real), size = 2.5) +
+  labs(shape = 'Predicted', colour = 'Actual') +
+  scale_color_manual(values= wes_palette('GrandBudapest1', n = 4))
