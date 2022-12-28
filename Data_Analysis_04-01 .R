@@ -50,13 +50,12 @@ head(dataset04)
 
 # skimr - no missing values, car names are not columns (rownames)
 skimr::skim(dataset04)
-
 summary(dataset04)
 
 # Discrepancy between boxes scales >> data will need to be scaled
 boxplot(dataset04)
 
-# Scale data (sd = 1, mean = 0)
+# Scale data for hierarchical clustering (sd = 1, mean = 0)
 dataset04_sc <- as.data.frame(scale(dataset04))
 skimr::skim(dataset04_sc)
 summary(dataset04_sc)
@@ -69,22 +68,24 @@ summary(dataset04_sc)
                           # dataset, min # of cluster, max # of clusters
 model_cascade <- cascadeKM(dataset04, 2, 10)
 model_cascade$results
-plot(model_cascade)
+plot(model_cascade) # clusters proposed: 10
 
 model_cascade_20 <- cascadeKM(dataset04, 2, 20)
-plot(model_cascade_20)
+plot(model_cascade_20) # clusters proposed: 20
 
 # Same, but for scaled data 
 model_cascade_sc <- cascadeKM(dataset04_sc, 2, 10)
 model_cascade_sc$results
-plot(model_cascade_sc)
+plot(model_cascade_sc) # clusters proposed: 4
 
-# Based on Calinski criterion we should choose 10 clusters (the bigger value the better)
-# >> but it seems a lot for just 32 different cars. While incresing max number
-# of clusters, cascade model suggests more and more clusters.
+# Based on Calinski criterion we should choose 10 clusters (the bigger value the better).
+# While increasing max number of clusters in arguments, cascade model suggests
+# more and more clusters as outcome (i.e with max set to 20, model proposes 20 clusters).
+# >> it seems a lot for just 32 different cars.
 # With 5 clusters CH index increases comparing to 4 or 6 clusters. After scaling
 # the data, we get highest CH index with 4 clusters.
-# Final number of clusters to be confirmed based on dendrogram and silhouette factors.
+# Final number of clusters to be confirmed based on dendrogram and silhouette factors
+# (4 or 5 clusters).
 
 
 ###############################################
@@ -140,7 +141,15 @@ sil_index_5 <- silhouette(model_kmeans_5$cluster,
                                       method = 'euclidean'))
 plot(sil_index_5)
 # Now much better in terms of thickness, height remains similar.
-# With more clusters silhouettes are getting more different >> we will keep 5 
+
+model_kmeans_6 <- kmeans(dataset04, 
+                         centers = 6, 
+                         nstart = 100) 
+sil_index_6 <- silhouette(model_kmeans_6$cluster, 
+                          dist = dist(dataset04,
+                                      method = 'euclidean'))
+plot(sil_index_6)
+# With more clusters silhouettes are getting more diverse >> we will keep 5 
 # clusters.
 
 
@@ -171,4 +180,4 @@ ggbiplot(dataset04_pca, choices = c(1,2), ellipse=TRUE, groups = dataset04$Clust
 # ANSWER
 ###############################################
 # Based on CH index for scaled and not-scaled data, as well as dendrogram and 
-# silhouette factor >> 5 clusters
+# silhouette factor >> 5 clusters.

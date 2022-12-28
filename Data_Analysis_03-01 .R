@@ -97,7 +97,7 @@ model_1NN <- knn(dataset03[train, 1:18],
                 dataset03[test, 1:18],
                 # train data classes 
                 dataset03$Class[train],
-                # number of neighbours
+                # number of neighbors
                 k = 1)
 
 model_LDA <- lda(Class ~ .,
@@ -120,23 +120,23 @@ model_nb_kernel <- NaiveBayes(Class ~ .,
 
 # Based on confusion matrix
 
-# 1NN >> accuracy 0.6028
+# 1NN >> accuracy 0.6028, kappa = 0.5209
 # Prediction error = 1 - 0.6028 = 0.3972 >> 40%
 confusionMatrix(data = model_1NN, reference = dataset03$Class[test])
 
-# LDA >> accuracy 0.7979
+# LDA >> accuracy 0.7979, kappa = 0.7304
 # Prediction error = 1 - 0.7979 = 0.2021 >> 20%
 confusionMatrix(data = predict(model_LDA, dataset03)$class, reference = dataset03$Class)
 
-# QDA >> accuracy 0.9161
+# QDA >> accuracy 0.9161, kappa = 0.8881 
 # Prediction error = 1 - 0.9161 = 0.0839 >> 8%
 confusionMatrix(data = predict(model_QDA, dataset03)$class, reference = dataset03$Class) 
 
-# NB Normal >> accuracy 0.4728
+# NB Normal >> accuracy 0.4728, kappa = 0.3025
 # Prediction error = 1 - 0.4728 = 0.5272 >> 53%
 confusionMatrix(data = predict(model_nb_normal, dataset03)$class, reference = dataset03$Class)
 
-# NB Kernel >> accuracy 0.6596
+# NB Kernel >> accuracy 0.6596, kappa = 0.5474
 # Prediction error = 1 - 0.6596 = 0.3404 >> 34%
 confusionMatrix(data = predict(model_nb_kernel, dataset03)$class, reference = dataset03$Class)
 
@@ -229,8 +229,8 @@ errorest(Class ~ .,
 ##############
 # ANSWER:
 ##############
-# Chosen model: QDA (lowest prediction error). There is enough data in each
-# class to correctly work with that method.
+# Chosen model: QDA (lowest prediction error, kappa closest to 1).
+# There is enough data in each class to correctly work with that method.
 
 
 ###############################################
