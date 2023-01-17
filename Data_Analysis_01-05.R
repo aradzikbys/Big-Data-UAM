@@ -11,8 +11,9 @@
 rm(list = ls())
 
 # Install & load package
-install.packages("carData")
+# install.packages("carData")
 library(carData)
+library(nlstools)
 ?USPop
   
 # Assign data to the data set
@@ -20,10 +21,10 @@ dataset05 <- USPop
 head(dataset05)
 
 # Logistic model:
-model5 <- nls(population ~ SSlogis(year, a, b, c), dataset05)
+model_5 <- nls(population ~ SSlogis(year, a, b, c), dataset05)
 
 # Summary (values of parameters and tests of significance)
-summary(model5)
+summary(model_5)
 # We have 3 parameters (a = 440.83, b = 1976.63, c = 46.28),
 # all of them are relevant to the model (***).
 # 19 degrees of freedom = number of observation (22) - the number of variables (3)
@@ -43,40 +44,45 @@ plot(data = dataset05,
      xlab = 'Year', ylab = 'Population')
 
 # Add logistic model:
-curve(a / (1+ e^((b-x)/c)),
-      add = TRUE, 
-      col = 2, lwd = 2)
+curve(SSlogis(x,a,b,c), add = TRUE, col = 2, lwd = 2)
+
+# Add logistic model - using formula:
+# curve(a / (1+ e^((b-x)/c)), add = TRUE, col = 2, lwd = 2)
 
 
 # With ggplot:
-# Create dataframe with logistic model values:
-pop <- c(a/(1+ e^((b-(dataset05$year))/c)))
-yr <- dataset05$year
-dataset05_gg <- data.frame(yr, pop)
+# Create data frame with predictions (based on logistic model)
+predictions <- predict(model_5, newdata = data.frame(year = USPop$year), type = "response")
+dataset05_a <- data.frame(year = USPop$year, Pop = USPop$population, Predictions = predictions)
 
 ggplot(data = dataset05, aes(x = year, y = population)) +
-  xlab('Year') + ylab('Population') +
-  geom_point(aes(x = year, y = population))+
-  geom_line(data = dataset05_gg, aes(x = yr, y = pop), col = 2, size = 1)
+  geom_point(aes(x = year, y = population)) +
+  geom_line(data = dataset05_a, size = 1, color = 2,
+            aes(y = predictions), fullrange = TRUE) +
+  xlab('Year') + ylab('Population')
 
 
-# Load package nlstools - for non-linear regression analysis
-library(nlstools)
+# Residuals are not normally distributed:
+hist(resid(model_5log), col = moon[2])
 
-# Diagnostic plots
-plot(nlsResiduals(model5))
-
-# Residuals histogram - residuals are not normally distributed
-hist(resid(model5), col = 2)
+# Variance is not homogeneous (points are not symmetrically distributed)
+# and show positive correlation:
+plot(nlsResiduals(model_5log), 1)
 
 # Normality test (SW test) and test of randomness of residuals
 test.nlsResiduals(nlsResiduals(model5))
-# Shapiro-Wilk normality test:
-# p-value = 0.01252 (less than 0.05 >> we reject null hypothesis,
-# order of our data IS NOT random and model is non-linear.
+# Shapiro-Wilk normality test is used to check normality of residuals.
+# Null hypothesis is that residuals are normally distributed. If p-value is
+# lower than 0.05 we can reject null hypothesis.
+# p-value = 0.01252 <0.05, we reject null hypothesis,
+# residuals are not normally distributed.
 
+# The Runs Test is a test for randomness of residuals.
+# Low p-value (below 0.05) suggests that the residuals are not randomly distributed.
+# p-value = 0.000896 < 0.05, residuals are not normally distributed.
 
 ##############
 # ANSWER:
 ##############
-# Assumptions of model are not met (data is not normally distributed).
+# Residuals indicates that assumptions of logistic model are not met (there is
+# correlation between residuals and they are not normally distributed).

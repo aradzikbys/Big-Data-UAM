@@ -10,8 +10,7 @@
 # Clear enviroment
 rm(list = ls())
 
-# Load package
-# install.packages("UsingR")
+# Load libraries
 library(UsingR)
 ?homeprice
 
@@ -31,15 +30,24 @@ abline(model_4a, col = 2, lwd = 2)
 
 
 # With ggplot:
-ggplot(dataset04, aes(x = half, y = sale)) + geom_point(size = 2) +
-  geom_smooth(method = 'lm', se = FALSE, colour = 2) +
-  labs(x = 'Number of toilets (half)', y = 'Sale price (k $)')
+ggplot(data = dataset04, aes(x = half, y = sale)) +
+  
+  geom_point(data = dataset04, aes(x = half, y = sale)) +
+  
+  geom_smooth(data = dataset04,
+              method = 'lm',
+              color = 2,
+              aes(x = half, y = sale)) +
+  
+  labs(x = 'Number of toilets',
+       y = 'Sale price (k$)')
 
 ## Summary:
 summary(model_4a)
-# Multiple R-squared: 0.1554 (we aim for at least 60%)
-# >> number of half toilets affects final price in 15%
-# p-value: 0.03436 (less than 5% >> OK)
+# Adjusted R-squared: 0.1241 (below 0.6) - number of toilets (half) explains
+# variance in the price in 12%.
+# p-value: 0.03436 (below, but very close to significance level = 0.05)
+# Residuals are not symmetrical.
 
 cor.test(~ sale + half, data = dataset04) 
 # cor = 0.3941621 >> weak positive correlation
@@ -48,37 +56,39 @@ cor.test(~ sale + half, data = dataset04)
 ##############
 # ANSWER:
 ##############
-# Assumptions of the model are met, although correlation between number of half-bathrooms
-# and final house price is very weak (cor = 0.39). Supposedly, the bigger area of the house,
-# the higher price (and usually in bigger houses there are more bathrooms).
-# Possibly, more variables explain price difference better.
-
+# Assumptions of the model are not met (p value is very close to 0.05 and adjusted
+# R-squared is below 0.6), also correlation between number of half-bathrooms and
+# final house price is very weak (cor = 0.39).
+# Possibly, other variables explain price difference better.
 
 
 ########################
 # Additional analysis:
 #######################
 
-# We can start with all variables (except 'list') within null hypothesis.
+# We can start with all variables (except 'list'):
 model_4b <- lm(sale ~ .-list, data = dataset04)
 
 summary(model_4b)
-# Adjusted R-squared: 0.8879 (much better than with previous model >> with more
-# variables, R will be increasing). With significance level at 5% we should
-# remove rooms and bedrooms from the model.
+# Adjusted R-squared: 0.8879 (vs 0.1241 in model_4a)
+# p-value: 3.686e-11 (vs 0.03436 in model_4a)
 
-# Based on summary, most influential variables are neighborhood, number of toilets
-# (half) and in some part number of bathrooms (full).
+# Most influential variables are neighborhood***, half** and in some part full.
+# With significance level at 5% we should remove rooms and bedrooms from the model.
+
+
 model_4c <- lm(sale ~ full + half + neighborhood, data = dataset04)
 
 summary(model4c)
-# R-squared: 0.8577 (worse than with model with more variables, but still
-# pretty decent, more than 60%).
-# With such model residuals are almost perfectly symmetrical (-90.5 to 90.3),
-# p-value = 2.436e-11 (vs 3.686e-11 in model with all variables).
+# Adjusted R-squared: 0.8577 (vs 0.8879 in model_4b and 0.1241 in model_4a)
+# p-value: 2.436e-11 (vs 3.686e-11 in model_4b and 0.03436 in model_4a)
 
 # Compare models with Akaike (AIC), Bayesian (BIC) and Anova:
-AIC(model_4a, model_4b, model_4c)     # Akaike picks model with all variables,
+AIC(model_4a, model_4b, model_4c)     # Akaike picks model with all variables (beside list price),
                                       # although there is small difference between 4b anc 4c
 BIC(model_4a, model_4b, model_4c)     # BIC as well (small diff. between 4b and 4c)
-anova(model_4a, model_4b, model_4c)   # Anova choose model with all variables
+
+##############
+# ANSWER:
+##############
+# The best model is model_4b (model with all variables, except listing price).

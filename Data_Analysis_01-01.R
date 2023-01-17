@@ -18,13 +18,13 @@ dataset01 <- cars
 head(dataset01)
 
 # Linear model (Model 1A):
-model_1a = lm(formula = dist ~ speed, data = dataset01)
+model_1a <- lm(formula = dist ~ speed, data = dataset01)
 
 # Square model (Model 1B):
-model_1b = lm(dist ~ poly(speed, 2, raw = TRUE), data = dataset01)
+model_1b <- lm(dist ~ poly(speed, 2, raw = TRUE), data = dataset01)
 
 # Cubic model (Model 1C):
-model_1c = lm(dist ~ poly(speed, 3, raw = TRUE), data = dataset01)
+model_1c <- lm(dist ~ poly(speed, 3, raw = TRUE), data = dataset01)
 
 
 # Scatter plot using basic R functions:
@@ -97,7 +97,7 @@ AIC(model_1a, model_1b, model_1c)
 
 
 # Bayesian criterion >> 1A
-BIC(model.1a, model.1b, model.1c)
+BIC(model_1a, model_1b, model_1c)
 # BIC: 424.9, 426.4, 429.4 > > minor differences between models (<2)
 # Bayesian chooses 1A (Bayesian prefers simpler model)
 
@@ -106,4 +106,12 @@ BIC(model.1a, model.1b, model.1c)
 # ANSWER:
 ##############
 # PROPOSED MODEL: Model 1A
-# Simplest one and good enough comparing to square & cubic models.
+#  In terms of the fit model 1C is the best, since more complex models are
+# more adaptive. From the other side they tend to cause over fitting (tendency to
+# adjust to random "noise" and outliers). Although in terms of MSE and multiple
+# R-squared model 1C has the best results, other parameters and measures
+# (which takes into consideration complexity and number of predictors, such as
+# adjusted R-squared or AIC criterion) have much worse results.
+
+# For prediction the best is model 1A, as it's the simplest one, shows
+# pattern in data and have good parameters comparing to square & cubic models.

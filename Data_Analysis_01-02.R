@@ -18,7 +18,6 @@ rooms <- c(3, 3, 4, 5, 4, 3, 6, 3, 4, 5)
 
 # Combine vectors to data frame
 dataset02 <- data.frame(price,rooms) 
-head(dataset02)
 
 
 # Create scatter plot:
@@ -43,8 +42,8 @@ ggplot(data = dataset02, aes(x = rooms, y = price)) +
 
 # Summary
 summary(model_2a)
-# Adjusted R-squared: 0.4846 (price of the room depends in 48% on number of rooms,
-# not good enough, we aim for at least 0.6)
+# Adjusted R-squared: 0.4846 (variance in price of the apartment depends on 48%
+# on the number of rooms). Not good enough, we aim for at least 60%.
 # p-value: 0.01521 (OK = less than 0.05, significance level)
 
 # Significance of Pearson's coeff
@@ -64,8 +63,11 @@ predict(model_2a,tworooms)
 # ANSWER:
 ##############
 
-# With significance level at 5%, number of rooms have impact on the price
-# (also, there is strong positive correlation: 0.73).
+# With significance level = 0.05 assumptions of model are met. There is strong
+# positive correlation between number of rooms and the price (price depends on
+# 73% on number of the rooms). Possibily, with remong outlier observation,
+# general parameters of the model (adjusted R-squared, p-value, normality etc.)
+# can improve.
 # Price of 2 rooms apartment: 240.6 k PLN.
 
 
@@ -86,7 +88,6 @@ hist(resid(model_2a), col = 2)
 # observations would be better. 
 shapiro.test((resid(model_2a))) 
 
-
 # Constant variance >> points are not symmetrically distributed, there are potential outliers
 plot(model_2a, 1, pch = 20) 
 
@@ -96,8 +97,7 @@ plot(model_2a, 2, pch = 20)
 # Influential points >> obs. #7 highly influences the regression line
 plot(model_2a, 5, pch = 20) 
 
-# Based on histogram, constant variance and influential points there is
-# outlier (#7)
+# Based on histogram, constant variance and influential points there is outlier (#7)
 
 # Divide data set into 2: observations w/o outlier (w/o #7) + outlier (#7)
 dataset02A <- dataset02[-7,]
@@ -137,7 +137,7 @@ ggplot(data = dataset02, aes(x = rooms, y = price)) +
   
   # Data points:
   geom_point(data = dataset02A, size = 2) +
-  geom_point(data = dataset02B, colour = 'darkgrey', size = 2.5) +
+  geom_point(data = dataset02B, colour = 'red', size = 2.5) +
   
   # Model w/o observation #7:
   geom_smooth(data = dataset02A, method = 'lm', se = FALSE, fullrange = TRUE,
