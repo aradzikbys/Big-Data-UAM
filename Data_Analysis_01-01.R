@@ -31,7 +31,6 @@ model_1c <- lm(dist ~ poly(speed, 3, raw = TRUE), data = dataset01)
 plot(dataset01, pch = 20,
      xlab = 'Speed (mph)', 
      ylab = 'Distance (ft)') +
-
 # Legend:
 legend('topleft',
       legend = c('Model 1A (linear)', 'Model 1B (square)','Model 1C (cubic)'),
@@ -106,7 +105,7 @@ BIC(model_1a, model_1b, model_1c)
 # ANSWER:
 ##############
 # PROPOSED MODEL: Model 1A
-#  In terms of the fit model 1C is the best, since more complex models are
+# In terms of the fit model 1C is the best, since more complex models are
 # more adaptive. From the other side they tend to cause over fitting (tendency to
 # adjust to random "noise" and outliers). Although in terms of MSE and multiple
 # R-squared model 1C has the best results, other parameters and measures

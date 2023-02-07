@@ -57,7 +57,7 @@ curve((a*x / (b+x)),
       col = 2, lwd = 2)
 
 # With ggplot:
-# Create dataframe with Michaelis-Menten values for velocity:
+# Create data frame with Michaelis-Menten values for velocity:
 tm <- dataset06$t
 vel <- c((a * tm / (b + tm)))
 dataset06_gg <- data.frame(tm,vel)
@@ -76,4 +76,4 @@ predict(model6,seventeenth)
 ##############
 # ANSWER:
 ##############
-#Predicted speed: 51.85 m/s
+# Predicted speed: 51.85 m/s

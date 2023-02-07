@@ -18,9 +18,10 @@ rm(list = ls())
 ###############################################
 
 # For data set:
-install.packages("UsingR")
+# install.packages("UsingR")
 library(UsingR)
 library('MASS')
+
 # For biplot:
 library(plyr)
 library(dplyr)
@@ -108,7 +109,7 @@ dataset01_pca$rotation
 # Based on biplot and rotation:
 # To PC1 mostly contribute Expression (0.66), then in some part Composition (0.48)
 # PC2 has strong negative weight for Colour (-0.84),
-# PC3 has strong negative weight for Compostiion (-0.78) and positive weight of Expression (0.513)
+# PC3 has strong negative weight for Composition (-0.78) and positive weight of Expression (0.513)
 
 # Based on biplot:
 # There is no correlation between Composition and Colour (angle close to 90 degrees),
@@ -117,7 +118,7 @@ dataset01_pca$rotation
 
 # >> Venetian painters were highly valued for Color, while on other characteristics
 # they were received poorly (especially Drawing).
-# >> Manerists were valued mostly for Drawing. Group is tighly clustered: there are small
+# >> Manerists were valued mostly for Drawing. Group is tightly clustered: there are small
 # discrepancies between ratings they've received.
 # >> Besides Bourdon, French painters were highly valued for Drawing, as well as Expression
 # and Composition, all of them received rather low ratings for Colour.

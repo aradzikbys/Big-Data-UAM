@@ -18,6 +18,7 @@ rm(list = ls())
 library(UsingR)
 library(dplyr)
 library(tibble)
+library(magrittr)
 
 # Assign data to the data set
 ?emissions
@@ -84,8 +85,8 @@ ggplot(dataset03_c, aes(x = GDP, y = CO2, label = code)) +
   labs(x = 'GDP', y = 'CO2 emission')
 
 # Outliers based on scatter plot: USA, Russia and Japan. According to Practical
-# Statistics for Data Scientists by Peter Bruce, Andrew Bruce and Peter Gedeck,
-# “an outlier is any value that is very distant from the other values in a data set”.
+# Statistics for Data Scientists, “an outlier is any value that is very distant
+# from the other values in a data set”.
 # Although USA falls within 95% confidence interval, its GDP and CO2 emission
 # are much higher than median values for whole data set.
 # Unlike the mean, median (or trimmed mean, which is calculated after removing 
@@ -96,7 +97,6 @@ ggplot(dataset03_c, aes(x = GDP, y = CO2, label = code)) +
 dataset03['UnitedStates',]
 
 # Median for data set
-library(magrittr)
 skimr::skim(emissions) %>% dplyr::select(numeric.p50)
 
 
@@ -156,7 +156,7 @@ dataset03_USA <- dataset03[(rownames(dataset03) %in% countries_remove),]
                     color = 'Model with all data points',
                     linetype = 'Model with all data points')) +
     # Lines color & type:
-    scale_color_manual(name = 'Model', values=c(1,'darkgrey')) +
+    scale_color_manual(name = 'Model', values=c(2,'darkgrey')) +
     scale_linetype_manual(name = 'Model', values=c(1,2)) +
     # Axis labels:
     labs(x = 'GDP', y = 'CO2 emmission'))

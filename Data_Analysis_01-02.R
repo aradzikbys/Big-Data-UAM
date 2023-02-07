@@ -65,9 +65,10 @@ predict(model_2a,tworooms)
 
 # With significance level = 0.05 assumptions of model are met. There is strong
 # positive correlation between number of rooms and the price (price depends on
-# 73% on number of the rooms). Possibily, with remong outlier observation,
+# 73% on number of the rooms). Possibly, with removing outlier observation,
 # general parameters of the model (adjusted R-squared, p-value, normality etc.)
 # can improve.
+#
 # Price of 2 rooms apartment: 240.6 k PLN.
 
 
@@ -121,7 +122,7 @@ plot(data = dataset02,
 
 # Add data points:
 points(dataset02A, pch = 20, cex = 1.5) +
-  points(dataset02B, pch = 20, col = 'darkgrey', cex = 1.5)
+  points(dataset02B, pch = 20, col = 2, cex = 1.5)
 
 # Linear model for data w/o outlier:
 model_2b = lm(price ~ rooms, data = dataset02A)
@@ -164,12 +165,11 @@ summary(model_2b)
 # p-value: 0.001741 (vs 0.01521 in Model 2A) >> significant improvement
 
 # Significance of Pearson's coeff
-cor.test(~ price + rooms, data = datase.02A) 
+cor.test(~ price + rooms, data = dataset02A) 
 # p = 0.001741 (vs 0.015 in Model 2A)
 # cor = 0.8802 (vs 0.7361 in Model 2A)
 
 # Residuals histogram - residuals are normally distributed
-resid(model_2b)
 hist(resid(model_2b), col = 2)
 
 # Shapiro test p-value = 0.9398
@@ -182,10 +182,10 @@ plot(model_2b, 1, pch = 20)
 
 # Normality
 # Rather OK in our case - rather symmetrical, potential outliers: #5, #6
-plot(model_2, 2, pch = 20) 
+plot(model_2b, 2, pch = 20) 
 
 # Influential points: observation #6 another potential outlier
-plot(model_2, 5, pch = 20) 
+plot(model_2b, 5, pch = 20) 
 
 
 
@@ -195,12 +195,12 @@ tworooms <- data.frame(rooms=c(2))
 # All data (model.2a) >> 240.6 k PLN
 # Equation: 73.1 * 2 + 94.4
 # Predict function:
-predict(model.2a,tworooms)
+predict(model_2a,tworooms)
 
 # w/o outlier #7 >> 175.8 k PLN
 # Equation: 116.30 * 2 - 56.80
 # Predict function:
-predict(model.2b,tworooms)
+predict(model_2b,tworooms)
 
 
 
@@ -208,7 +208,7 @@ predict(model.2b,tworooms)
 sixrooms <- data.frame(rooms=c(6))
 
 # Model 1A >> price predicted: 533 k PLN
-predict(model.2a,sixrooms)
+predict(model_2a,sixrooms)
 
 # Model 1B >> price predicted: 641 k PLN
-predict(model.2b,sixrooms)
+predict(model_2b,sixrooms)

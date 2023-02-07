@@ -98,7 +98,7 @@ dist_mat <- dist(dataset04_sc, method = 'euclidean')
 # Hierarchical clustering & dendrogram
 hclust_avg <- hclust(dist_mat, method = 'average')
 plot(hclust_avg)
-# Based on dendrogram >> 5 clusters
+# Based on dendrogram >> 5 clusters, cut line at 3.5 level
 
 # Clusters marked on dendrogram:
 rect.hclust(hclust_avg , k = 5, border = 2:6)
@@ -142,6 +142,7 @@ sil_index_5 <- silhouette(model_kmeans_5$cluster,
 plot(sil_index_5)
 # Now much better in terms of thickness, height remains similar.
 
+# k-means model with 6 clusters:
 model_kmeans_6 <- kmeans(dataset04, 
                          centers = 6, 
                          nstart = 100) 
@@ -171,7 +172,11 @@ dim(dataset04)
 # Create PCA model (w/o cluster column):
 dataset04_pca <- prcomp(dataset04[,-12], scale. = TRUE)
 
-ggbiplot(dataset04_pca, choices = c(1,2), ellipse=TRUE, groups = dataset04$Cluster) +
+ggbiplot(dataset04_pca,
+         choices = c(1,2),
+         ellipse=TRUE, 
+         groups = dataset04$Cluster,
+         labels = rownames(dataset04)) +
   labs(colour = 'Cluster') +
   scale_color_manual(values= wes_palette('FantasticFox1', n = 5))
 

@@ -18,7 +18,7 @@ rm(list = ls())
 
 # For data set:
 library('MASS')
-library(dplyr)
+library(tidyverse)
 # For ggbiplot:
 library(ggbiplot)
 library(devtools)
@@ -46,26 +46,20 @@ type <- c(dataset02$Type)
 # For labels on chart:
 make <- c(dataset02$Make)
 
-# Check which columns are numeric (int, dbl) >> we need to remove factors and labels
-str(dataset02)
-
-# Categorical (fct) and continuous (int, dbl) variables:
-categorical <- c('Manufacturer', 'Model', 'Type', 'AirBags', 'DriveTrain',
-                     'Cylinders', 'Man.trans.avail','Origin', 'Make')
-
-continuous <- c('Min.Price', 'Price', 'Max.Price', 'MPG.city', 'MPG.highway', 
-                    'EngineSize', 'Horsepower', 'RPM', 'Rev.per.mile', 'Fuel.tank.capacity', 
-                    'Passengers', 'Length', 'Wheelbase', 'Width', 'Turn.circle', 
-                    'Rear.seat.room', 'Luggage.room', 'Weight')
-
-# For PCA analysis leave continuous variables in data set:
-dataset02 <- dataset02[ , continuous]
-
-
-# skimr: summary statistics about variables in data frame.
-# we don't miss any values now, out of 18 colums 18 are numeric (int or num)
+# Transform some factor variables into numbers
+# (we won't use lables used to analyze data, like Manufacturer & Model, Type, Origin and Make)
 skimr::skim(dataset02)
-str(dataset02)
+
+# Remove "label" columns from data set
+lbls <- c('Manufacturer','Model','Type','Origin','Make')
+dataset02[,lbls] <- list(NULL)
+
+# Change factor columns to numeric
+for (i in 1:ncol(dataset02)){
+  if(sapply(dataset02[i], class) == 'factor'){
+    dataset02[i] <- lapply(dataset02[i], function(x) as.integer(x))
+  }
+}
 
 
 ###############################################
@@ -74,7 +68,6 @@ str(dataset02)
 
 
 # We need to re-scale the data >> there is discrepancy between boxes scales
-# (RPM, Rev. per mile, Weight)
 boxplot(dataset02)
 
 # PCA model:
@@ -82,18 +75,19 @@ dataset02_pca <- prcomp(dataset02, scale. = TRUE)
 
 # Summary of PCA model - importance of components
 summary(dataset02_pca) 
-# First 3 PCs explain 83.3% of variance >> we can confirm with screeplot
+# First 4 PCs explain 82% of variance >> we can confirm with scree plot
 
-# Screeplot 
+# Scree plot 
 screeplot(dataset02_pca, type = 'l', pch = 20) 
-# As of 4th PC the line flattens out, we should keep first 3 PCs
+# As of 5th PC the line flattens out >> it's ok to keep first 4 PCs
 
 
 ###############################################
 # 04 Biplots
 ###############################################
 
-# Initial biplot (with PC1 and PC2 as axis):
+# Initial biplot (with PC1 and PC2 as axis):\
+ggbiplot(dataset02_pca)
 ggbiplot(dataset02_pca, choices = c(1,2))
 # Price is highly correlated with horsepower
 # There is negative correlation between MPG (both highway and city) and cars'
@@ -105,7 +99,8 @@ ggbiplot(dataset02_pca, ellipse=TRUE, groups=origin, labels=make) +
   geom_point(aes(colour=origin), size = 2.5)
 # USA cars are bigger: they can fit more passengers, size of engine and car itself (lenght/width)
 # are bigger than non-USA. USA cars have also lower RPM value - engines are less dynamic >>
-# meaning they are fitted to drive long distance, w/o big acceleration.
+# meaning they are fitted to drive long distance, w/o big acceleration. Also, manual
+# transmission is not available in them.
 # Non-USA cars are more efficient in terms of gas usage (but based purely on labels it's rather
 # for Japan cars - Subaru, Mazda, Suzuki). European cars (BMW, VW, Volvo) have worse parameters
 # in terms of MPG. Also, non-USA cars (rather European) are more expensive.
